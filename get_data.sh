@@ -1,5 +1,5 @@
 WGET="wget -v --no-check-certificate"
-FILES="IBM*zip"
+FILES="*zip"
 mkdir datasets
 
 # Argument Detection
@@ -22,7 +22,6 @@ FOLDER="datasets/Argument_Stance"
 mkdir -p $FOLDER
 $WGET "https://www.research.ibm.com/haifa/dept/vst/files/IBM_Debater_(R)_CS_EACL-2017.v1.zip"
 $WGET "https://www.research.ibm.com/haifa/dept/vst/files/IBM_Debater_(R)_SLIDE_LREC_2018.zip"
-$WGET "https://www.research.ibm.com/haifa/dept/vst/files/IBM_Debater_(R)_SC_COLING_2018.zip"
 $WGET "https://www.research.ibm.com/haifa/dept/vst/files/IBM_Debater_(R)_SC_COLING_2018.zip"
 $WGET "https://www.research.ibm.com/haifa/dept/vst/files/IBM_Debater_(R)_WC-ACL-2016.v2.zip"
 mv $FILES $FOLDER
