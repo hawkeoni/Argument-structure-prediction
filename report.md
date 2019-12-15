@@ -147,6 +147,11 @@ concept = "видеоигры".
 
 
 ### In progress
+
+Argumentation Mining: The Detection, Classification and
+Structuring of Arguments in Text
+mochales moens
+
 Помимо этих 4х датасетов у IBM есть еще несколько вещей, которые мне нужно досмотреть.
 Что мне еще нужно дочитать
 
