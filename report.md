@@ -140,13 +140,37 @@ concept = "видеоигры".
 Датасет содержит почти 1.5М пар topic, sentence claim полученных таким образом.
 
 
+У IBM есть еще пара датасетов и статей: argument quality (бинарная классификация, какой аргумент лучше), 
+Debate speech (для speech to text и наоборот), Claim Stance, Expert stance, Concept abstractness, но ничего,
+что напрямую помогло бы в задаче выявления аргументации.
 
+### Другие работы
 
+https://www.informatik.tu-darmstadt.de/ukp/research_6/data/index.en.jsp
 
+https://arxiv.org/pdf/1601.02403.pdf
+https://www.inf.uni-hamburg.de/en/inst/ab/lt/publications/2019-chernodubetal-acl19demo-targer.pdf
 
 
 
 ### In progress
+With  the  motivation  of  building  an  argument  mining  sys-tem  that  works  
+for  a  wide  variety  of  persuasive  essays,we  employ  the  argument  mining  corpus  in 
+(Stab  andGurevych,  2017)  for  training  our  system.  Following  theMacro-structure  of  Argumenttheory  
+(Freeman,  1991),  theauthors proposed an argument annotation scheme which as-sumes argumentation structures as 
+trees, where each argu-ment consists of components (nodes) linked through argu-mentative  relations  (directed  edges).
+  The  corpus  consistsof 402 persuasive essays which are practice writings in re-sponse to sample test questions of 
+  standardized English testsfor ESL learners. In the essays, writers state their opinions(labeled asMajorClaim) towards 
+  the writing topics and vali-date those opinions with convincing arguments consisting ofcontroversial statements 
+ (i.e.,Claim) that support or attac
+
+Persing 2015
+Wachsmuth 2016
+Ghosh 2016
+Klebanov 2016
+
+
+
 
 Argumentation Mining: The Detection, Classification and
 Structuring of Arguments in Text
@@ -157,6 +181,7 @@ mochales moens
 
 UKP Sentential Argument Mining Corpus released in (Stab et al., 2018).
 
+TARGER
 Levy et al. (2017)
  Webis-Debate-16 (Al-Khatib et al., 2016)
 Stab and Gurevych(2017) present one of the largest, with around 6,000 annotated positive instances). 
@@ -165,6 +190,20 @@ Support Vector Machines (SVM) [Mochales Palau and Moens 2011; Park and Cardie 20
 et al. 2015], Logistic Regression [Levy et al. 2014; Rinott et al. 2015], Na¨ıve Bayes classifiers [Mochales Palau and Moens 2011; Biran and Rambow 2011; Park and Cardie
 2014; Eckle-Kohler et al. 2015], Maximum Entropy classifiers [Mochales Palau and
 Moens 2011], Decision Trees and Random Forests [Stab and Gurevych 2014b; EckleKohler et al. 2015]. У всех у них нужно глянуть данные....
+Towards Creation ofa Corpus for Argumentation Mining  the Biomedical Genetics Research Literature
+Eckle-Kohler et al. 2015]
+[Lippi and Torroni 2015]
+[Rinott et al. 2015]
+[Sardianos et al. 2015]
+[Boltuzic and Snajder 2014]
+[Goudas et al. 2014]
+[Levy et al. 2014]
+[Stab and Gurevych 2014b]
+[Cabrio and Villata 2012a]
+[Rooney et al. 2012]
+[Biran and Rambow 2011]
+[Mochales Palau and Moens 2011]
+
 
 
 
