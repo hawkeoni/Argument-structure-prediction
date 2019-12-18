@@ -145,6 +145,44 @@ Debate speech (для speech to text и наоборот), Claim Stance, Expert 
 что напрямую помогло бы в задаче выявления аргументации.
 
 ### Другие работы
+http://lia.disi.unibo.it/~ml/publications/ACMTOIT2015.pdf
+https://www.ijcai.org/proceedings/2018/0766.pdf
+https://www.aclweb.org/anthology/P19-3031.pdf
+http://margot.disi.unibo.it/ESWA2016.pdf
+https://www.aclweb.org/anthology/D17-1245.pdf
+https://www.aclweb.org/anthology/L16-1200.pdf
+https://www.aclweb.org/anthology/N18-5005.pdf
+https://arxiv.org/pdf/1802.05758.pdf
+https://arxiv.org/pdf/1704.07203.pdf
+https://www.aclweb.org/anthology/P17-1002.pdf
+https://www.aclweb.org/anthology/D15-1255.pdf
+https://www.informatik.tu-darmstadt.de/ukp/research_6/data/index.en.jsp
+
+
+
+https://www.informatik.tu-darmstadt.de/ukp/research_6/data/index.en.jsp
+https://www.aclweb.org/anthology/P17-1002.pdf
+https://arxiv.org/pdf/1704.07203.pdf
+https://arxiv.org/pdf/1802.05758.pdf
+http://margot.disi.unibo.it/ESWA2016.pdf
+https://www.aclweb.org/anthology/N18-5005.pdf
+https://www.aclweb.org/anthology/L16-1200.pdf
+https://www.aclweb.org/anthology/D17-1245.pdf
+https://www.aclweb.org/anthology/P19-3031.pdf
+https://www.ijcai.org/proceedings/2018/0766.pdf
+http://lia.disi.unibo.it/~ml/publications/ACMTOIT2015.pdf
+
+
+
+
+
+
+
+
+
+
+
+
 
 https://www.informatik.tu-darmstadt.de/ukp/research_6/data/index.en.jsp
 
