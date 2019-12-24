@@ -33,10 +33,13 @@ def evaluate(model: Model, test_dataset: List[Instance]):
 
 
 def save_results(model: Model, vocab: Vocabulary, res: Dict[str, float], foldername: str):
-    os.mkdir(foldername)
+    try:
+        os.mkdir(foldername)
+    except BaseException as e:
+        print(f"Folder {foldername} already existed, rewriting internals.")
     torch.save(model.state_dict(), os.path.join(foldername, "model.pt"))
     vocab.save_to_files(os.path.join(foldername, "vocab"))
-    with open(os.path.join(foldername, "results.txt", "w")) as res_file:
+    with open(os.path.join(foldername, "results.txt"), "w") as res_file:
         for k, v in res.items():
             res_file.write(f"{k} = {v}\n")
     print(f"Results saved in {foldername}")

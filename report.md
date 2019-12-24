@@ -25,8 +25,8 @@
 Monological model - structured, dialogical - abstract.
 
 Остается вопрос: что же такое argument/argumentation/argument? В литературе считается, что связь между
-выводами (утверждениями, Claim) и предпосылками (evidence) и называется argument (warrant). 
-Данный опрелделения подтверждаются статьей [Introduction to structured argumentation](https://www.tandfonline.com/doi/full/10.1080/19462166.2013.869764)
+выводами (утверждениями, Claim) и предпосылками (evidence, premise) и называется argument (warrant). 
+Данный определения подтверждаются статьей [Introduction to structured argumentation](https://www.tandfonline.com/doi/full/10.1080/19462166.2013.869764)
 
 
 ### Как искать аргументацию
