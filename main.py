@@ -8,10 +8,8 @@ def main():
     articles_path = dataset_path + "articles/"
     articles = pd.read_csv(dataset_path + "articles.txt", sep='\t')
     claims = pd.read_csv(dataset_path + "claims.txt", sep='\t')
-    evidence = pd.read_csv(dataset_path + "evidence.txt", sep='\t', header=None)
     motions = pd.read_csv(dataset_path + "motions.txt", sep='\t')
 
-    validation_topics = get_validation_topics(motions)
     validation_claims_idx = claims["Topic"].isin(get_validation_topics(motions))
 
     train_test_claims = claims[~validation_claims_idx]
@@ -32,6 +30,7 @@ def main():
             val += result[key]
         print(f"{key} = {val / (i + 1)}")
         val = 0
+
 
 if __name__ == "__main__":
     main()

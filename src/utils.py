@@ -34,9 +34,9 @@ def evaluate(model: Model, test_dataset: List[Instance]):
 
 def save_results(model: Model, vocab: Vocabulary, res: Dict[str, float], foldername: str):
     os.mkdir(foldername)
-    torch.save(model, os.path.join(foldername, "model.pt"))
+    torch.save(model.state_dict(), os.path.join(foldername, "model.pt"))
     vocab.save_to_files(os.path.join(foldername, "vocab"))
-    with open(os.path.join(foldername, "results.txt")) as res_file:
+    with open(os.path.join(foldername, "results.txt", "w")) as res_file:
         for k, v in res.items():
             res_file.write(f"{k} = {v}\n")
     print(f"Results saved in {foldername}")
@@ -83,10 +83,10 @@ def train_and_evaluate(train_test_claims: pd.DataFrame,
                       train_dataset=train_dataset,
                       validation_dataset=val_dataset,
                       patience=3,
-                      num_epochs=6,
+                      num_epochs=20,
                       cuda_device=devicenum,
                       validation_metric="+f1")
-    trainer.train()
+    print(trainer.train())
     res = evaluate(model, test_dataset)
     print(res)
     save_results(model, vocab, res, foldername)

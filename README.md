@@ -9,3 +9,4 @@ To obtain data simpy run get_data.sh or download manually from the following res
 fix maxlen in reader and reader in general
 preprocess all with stanfordnlp
 
+joint evidence + claim vs single models
