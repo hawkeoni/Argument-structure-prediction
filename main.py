@@ -10,15 +10,16 @@ def main():
     claims = pd.read_csv(dataset_path + "claims.txt", sep='\t')
     motions = pd.read_csv(dataset_path + "motions.txt", sep='\t')
 
-    validation_claims_idx = claims["Topic"].isin(get_validation_topics(motions))
+    validation_topics = get_validation_topics(motions)
+    validation_claims_idx = claims["Topic"].isin(validation_topics)
 
     train_test_claims = claims[~validation_claims_idx]
     validation_claims = claims[validation_claims_idx]
 
     add_articleid(train_test_claims, articles, articles_path)
     add_articleid(validation_claims, articles, articles_path)
-
-    train_test_topics = claims.Topic.unique()
+    train_test_topics = train_test_claims.Topic.unique()
+    print(len(train_test_topics), len(validation_topics))
     results = []
 
     for i, test_topic in enumerate(train_test_topics):
