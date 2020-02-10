@@ -1,3 +1,6 @@
 datasets
 model*
 embeddings
+__pycache__
+.DS_Store
+.idea
