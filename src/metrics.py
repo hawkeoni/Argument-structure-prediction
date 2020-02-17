@@ -25,6 +25,8 @@ class F1ForSentenceClassification(Metric):
         precision = self._tp / (self._tp + self._fp) if (self._tp + self._fp > 0) else 0.
         recall = self._tp / (self._tp + self._fn) if (self._tp + self._fn > 0) else 0.
         fscore = 2 * precision * recall / (precision + recall) if (precision + recall > 0) else 0
+        if reset:
+            self.reset()
         return {"precision": precision, "recall": recall, "f1": fscore}
 
     def __call__(self, predictions: torch.Tensor, gold_labels: torch.LongTensor):

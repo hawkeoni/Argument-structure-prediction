@@ -1,5 +1,5 @@
 import os
-from typing import List, Dict
+from typing import List, Dict, Any
 
 import pandas as pd
 import torch
@@ -20,7 +20,7 @@ from src.readers import ClaimsReader
 from src.models import SimpleClassifier
 
 
-def evaluate(model: Model, test_dataset: List[Instance]):
+def evaluate(model: Model, test_dataset: List[Instance]) -> Dict[str, Any]:
     model.eval()
     model.get_metrics(reset=True)
     batch_size = 32
@@ -30,6 +30,37 @@ def evaluate(model: Model, test_dataset: List[Instance]):
             break
         model.forward_on_instances(batch)
     return model.get_metrics()
+
+
+def evaluate_and_write(model: Model, test_dataset: List[Instance], filename: str) -> Dict[str, Any]:
+    model.eval()
+    try:
+        model.get_metrics(reset=True)
+    except:
+        pass
+    batch_size = 32
+    f = open(filename, "w", encoding="utf8")
+    for i in range(len(test_dataset) // batch_size + 1):
+        batch = test_dataset[i * batch_size: (i + 1) * batch_size]
+        if not batch:
+            break
+        probs = model.forward_on_instances(batch)
+        for sample, p in zip(batch, probs):
+            text = " ".join([token.text for token in sample["tokens"].tokens])
+            label = sample["labels"].array[0]
+            string_name = ""
+            prob = p["probs"]
+            if label == 1 and prob > 0.5:
+                string_name = "true_positive"
+            if label == 0 and prob > 0.5:
+                string_name = "false_positive"
+            if label == 1 and prob < 0.5:
+                string_name = "false_negative"
+            if label == 0 and prob < 0.5:
+                string_name = "true_negative"
+            f.write(f"{text}\t{string_name}\t{label}\t{p['probs']}\n")
+    f.close()
+    return model.get_metrics(True)
 
 
 def save_results(model: Model, vocab: Vocabulary, res: Dict[str, float], foldername: str):
