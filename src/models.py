@@ -6,9 +6,7 @@ from allennlp.data import Vocabulary
 from allennlp.models.model import Model
 from allennlp.modules import FeedForward, Seq2VecEncoder, TextFieldEmbedder
 from allennlp.nn.util import get_text_field_mask
-from allennlp.training.metrics import Auc
-
-from src.metrics import F1ForSentenceClassification
+from allennlp.training.metrics import Auc, F1Measure
 
 
 class SimpleClassifier(Model):
@@ -17,8 +15,7 @@ class SimpleClassifier(Model):
                  vocab: Vocabulary,
                  embedder: TextFieldEmbedder,
                  encoder: Seq2VecEncoder,
-                 dropout: float = 0.3,
-                 threshold: float = 0.5,
+                 dropout: float = 0.4,
                  feedforward: FeedForward = None):
         super().__init__(vocab)
         self.embedder = embedder
@@ -29,10 +26,10 @@ class SimpleClassifier(Model):
         else:
             self.feedforward = None
             clf_dim = self.encoder.get_output_dim()
-        self.classifier = nn.Linear(clf_dim, 1)
-        self.criterion = nn.BCEWithLogitsLoss()
+        self.classifier = nn.Linear(clf_dim, 2)
+        self.criterion = nn.CrossEntropyLoss()
         self.auc = Auc()
-        self.f1 = F1ForSentenceClassification(threshold)
+        self.f1 = F1Measure(positive_label=1)
         self.dropout = nn.Dropout(dropout)
 
     def forward(self,
@@ -45,18 +42,21 @@ class SimpleClassifier(Model):
         vector = self.encoder(embedded, mask=mask)
         if self.feedforward is not None:
             vector = self.feedforward(vector)
-        logits = self.classifier(vector).squeeze(1)
-        probs = torch.sigmoid(logits)
+        # vector - [batch_size, hidden_dim]
+        logits = self.classifier(vector) # [batch_size, 2]
+        probs = torch.softmax(logits, dim=1)[:, 1]
         output_dict = {"probs": probs}
         if labels is not None:
-            labels = labels.squeeze(1)
+            # labels - [batch_size]
+            labels = labels.long()
             loss = self.criterion(logits, labels)
             output_dict["loss"] = loss
             self.auc(probs, labels)
-            self.f1(probs, labels.long())
+            self.f1(logits, labels)
         return output_dict
 
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
         metrics = {"auc": self.auc.get_metric(reset)}
-        metrics.update(self.f1.get_metric(reset))
+        precision, recall, fscore = self.f1.get_metric(reset)
+        metrics.update({"precision": precision, "recall": recall, "f1": fscore})
         return metrics

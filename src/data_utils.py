@@ -25,7 +25,7 @@ def add_articleid(claim_df: pd.DataFrame, article_df: pd.DataFrame, articles_dir
             article_id = articlerow["article Id"]
             article_path = os.path.join(articles_dir_path, f"clean_{article_id}.txt")
             article_text = open(article_path).read().lower()
-            article_text = re.sub("\s+", " ", article_text)
+            article_text = re.sub(r"\s+", " ", article_text)
             if claim_text in article_text:
                 found = True
                 ids.append(article_id)

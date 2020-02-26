@@ -1,6 +1,6 @@
 metrics = {"auc": 0, "precision": 0, "recall": 0, "f1": 0}
 for i in range(39):
-	data = open(f"model_{i}/results.txt").read().split('\n')[:-1]
+	data = open(f"model_lstm_{i}/results.txt").read().split('\n')[:-1]
 	for line in data:
 		# print(line)
 		k, v = line.split("=")
