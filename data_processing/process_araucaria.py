@@ -20,8 +20,6 @@ def main(araucaria_folder):
     print(s)
 
 
-
-
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python process_araucaria.py araucaria_folder")
