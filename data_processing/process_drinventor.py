@@ -62,7 +62,7 @@ def get_sentence_and_tags(aspect: _Element, citation: _Element) -> List[Tuple[st
                 # We need at least one non NEUTRAL Citation
                 allneutral = all(x == "NEUTRAL" for x in citation_types)  # True if all are neutral
                 if not allneutral:
-                    curtag = "Evidence"
+                    curtag = "Citation"
         if curtag is None:
             curtag = "None"
         result.append((achild.text, curtag))
