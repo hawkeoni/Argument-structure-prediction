@@ -1,5 +1,11 @@
 # Datasets
-
+Table of datasets :heavy_check_mark: 
+| Dataset | Topic | Claim Sentence | Claim | Evidence Sentence | Evidence |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
+## Processed
+# Old
 ## IBM
 Подстрока -AD- означает название задачи argument detection. 
 
