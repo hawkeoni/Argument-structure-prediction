@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import typer
 
+
 def main(araucaria_folder: Path):
     s = set()
     files = araucaria_folder.glob("*json")
@@ -13,4 +14,5 @@ def main(araucaria_folder: Path):
 
 
 if __name__ == "__main__":
+    print("This dataset is currently not supported")
     typer.run(main)
