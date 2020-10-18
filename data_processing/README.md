@@ -1,9 +1,10 @@
 # Datasets
-Table of datasets :heavy_check_mark: 
-| Dataset | Topic | Claim Sentence | Claim | Evidence Sentence | Evidence |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
+Table of datasets :heavy_check_mark: :heavy_multiplication_x: 
+| Dataset       | Topic         | Claim Sent    | Claim         | Evidence Sent | Evidence      |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| Content Cell  | Content Cell  |               |               |               |               |
+| Content Cell  | Content Cell  |               |               |               |               |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 ## Processed
 # Old
 ## IBM
