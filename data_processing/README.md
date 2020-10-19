@@ -8,10 +8,12 @@ Evidence - наличие размеченного утверждения вну
 
 | Dataset       | Topic         | Claim Sent    | Claim         | Evidence Sent | Evidence      |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
-| [AraucariaDB](###AraucariaDB) | - | - | - | + | - |
-| [DrInventor](###DrInventor)   | - | - | - | + | - |
+| [AraucariaDB](#AraucariaDB) | - | - | - | + | - |
+| [DrInventor](#DrInventor)   | - | - | - | + | - |
 | Content Cell  | Content Cell  |               |               |               |               |
+
 ## Принятые датасеты
+
 ### DrInventor
 Link - http://taln.upf.edu/drinventor/resources.php
 Разобрано 40 статей по компьютерному зрению. К каждой статье содержится несколько файлов: 
@@ -26,6 +28,7 @@ Link - http://taln.upf.edu/drinventor/resources.php
 1709 evidence sentences
 
 ## Отвергнутые датасеты
+
 ### AraucariaDB
 Link - http://corpora.aifdb.org.
 662 примера из разных источников. Куски текстов соединены в графы отношений, где одно опровергает другое, третье подтверждает второе и т.п. 662 примера, в среднем 637 символа на текст (119 слов), 8.85 компонент аргументации и 7.88 ребер, соединяющих компоненты.
