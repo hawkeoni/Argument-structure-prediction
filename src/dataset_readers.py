@@ -6,7 +6,6 @@ from allennlp.data.tokenizers import PretrainedTransformerTokenizer
 from allennlp.data.token_indexers import PretrainedTransformerIndexer
 from allennlp.data.fields import TextField, LabelField, MetadataField
 
-
 @DatasetReader.register("IBMReader")
 class ClaimsReader(DatasetReader):
 
@@ -31,7 +30,7 @@ class ClaimsReader(DatasetReader):
     def _read(self, filepath: str) -> Iterable[Instance]:
         dfs = pd.read_csv(filepath, chunksize=100)
         for df in dfs:
-            for rownum, row in df.iterrow():
+            for rownum, row in df.iterrows():
                 topic = row["topic"]
                 sentence = row["candidate"]
                 label = row.get("label")

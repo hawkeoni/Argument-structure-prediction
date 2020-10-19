@@ -42,3 +42,5 @@ if __name__ == "__main__":
         print("Usage: python process_scitdb.py scidtb_folder")
     else:
         main(sys.argv[1])
+
+from allennlp.training.optimizers import AdamOptimizer

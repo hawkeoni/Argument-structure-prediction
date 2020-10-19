@@ -1,0 +1,23 @@
+{
+    "dataset_reader" : {
+        "type": "IBMReader"
+    },
+    "train_data_path": "/Users/hawkeoni/uni/Thesis/Data/IBM_Debater_(R)_EvidenceSentences/IBMDebaterEvidenceSentences/train.csv",
+    "validation_data_path": "/Users/hawkeoni/uni/Thesis/Data/IBM_Debater_(R)_EvidenceSentences/IBMDebaterEvidenceSentences/test.csv",
+    "model": {
+        "type": "topic_sentence_clf"
+    },
+    "data_loader": {
+        "batch_size": 16
+    },
+    "trainer": {
+        "optimizer": {
+            "type": "adam",
+            "lr": 2e-5,
+            "parameter_groups": [
+                [["embedder.token_embedder_tokens.transformer_model.*"], {"requires_grad": false}]
+            ]
+        },
+        "num_epochs": 5
+    }
+}
