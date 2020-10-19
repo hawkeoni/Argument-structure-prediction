@@ -1,27 +1,18 @@
-import os
-import sys
 import json
-from typing import List, Tuple, Dict, Any
+from pathlib import Path
+import typer
 
 
-def read_file(filename: str) -> Dict[str, Any]:
-    return json.load(open(filename, encoding="utf8"))
-
-
-def main(araucaria_folder):
+def main(araucaria_folder: Path):
     s = set()
-    files = os.listdir(araucaria_folder)
-    files = list(filter(lambda x: x.endswith(".json"), files))
+    files = araucaria_folder.glob("*json")
     for file in files:
-        filename = os.path.join(araucaria_folder, file)
-        d = read_file(filename)
+        d = json.loads(file.read_text())
         for node_dict in d["nodes"]:
             s.add(node_dict["type"])
     print(s)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python process_araucaria.py araucaria_folder")
-    else:
-        main(sys.argv[1])
+    print("This dataset is currently not supported")
+    typer.run(main)

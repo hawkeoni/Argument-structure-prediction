@@ -1,12 +1,5 @@
-# Debater
+# Argumentation mining
 
 ## Datasets
-To obtain data simpy run get_data.sh or download manually from the following resources. 
-
-**Warning! This should take a while!**
-
-## TODO
-fix maxlen in reader and reader in general
-preprocess all with stanfordnlp
-
-joint evidence + claim vs single models
+Datasets are stored on google drive in 
+https://drive.google.com/drive/folders/1j0GXoPidCJraar1SXBItIK4lIDNWoJrZ?usp=sharing
