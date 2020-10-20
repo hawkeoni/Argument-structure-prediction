@@ -3,3 +3,4 @@ allennlp==1.1.0
 transformers==3.2.0
 typer==0.3.2
 pandas
+dvc==1.8.4
