@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict
 
 import torch
 import torch.nn as nn
@@ -6,15 +6,17 @@ from allennlp.data import Vocabulary
 from allennlp.models.model import Model
 from allennlp.modules import Seq2VecEncoder, TextFieldEmbedder
 from allennlp.nn.util import get_text_field_mask
-from allennlp.training.metrics import F1Measure
+from allennlp.training.metrics import FBetaMeasure
 from allennlp.modules.token_embedders import PretrainedTransformerEmbedder
 from allennlp.modules.text_field_embedders import BasicTextFieldEmbedder
 
 from src import BertCLSPooler
 
 
-@Model.register("topic_sentence_clf")
+@Model.register("topic_sentence_model")
 class TopicSentenceClassifier(Model):
+
+    default_predictor = "topic_sentence_predictor"
 
     def __init__(self,
                  vocab: Vocabulary,
@@ -34,7 +36,7 @@ class TopicSentenceClassifier(Model):
         self.dropout = nn.Dropout(dropout)
         self.clf = nn.Linear(self.encoder.get_output_dim(), 2)
         self.loss = nn.CrossEntropyLoss()
-        self.f1 = F1Measure(positive_label=1)
+        self.f1 = FBetaMeasure(average="micro")
 
     def forward(self,
                 tokens: Dict[str, Dict[str, torch.LongTensor]],
