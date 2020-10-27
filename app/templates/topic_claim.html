@@ -1,1 +1,28 @@
-Hello, world!
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+    
+    <form action="" method="post">
+        <p>
+	    <label for="topic">TOPIC</label>
+	    <input type="topic" name="topic">
+	</p>
+	<p>
+	    <label for="evidence">EVIDENCE</label>
+	    <input type="password" name="evidence">
+	</p>
+	<p>
+	    <input type="submit">
+	</p>
+    </form>
+    
+</body>
+</html>
