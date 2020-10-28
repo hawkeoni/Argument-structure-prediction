@@ -10,7 +10,7 @@ from allennlp.training.metrics import FBetaMeasure
 from allennlp.modules.token_embedders import PretrainedTransformerEmbedder
 from allennlp.modules.text_field_embedders import BasicTextFieldEmbedder
 
-from src import BertCLSPooler
+from argmining.core import BertCLSPooler
 
 
 @Model.register("topic_sentence_model")
