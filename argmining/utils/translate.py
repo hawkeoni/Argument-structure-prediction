@@ -11,6 +11,8 @@ from tqdm import tqdm
 logger = logging.getLogger(__name__)
 
 API_KEY = os.environ.get("RAPIDAKEY")
+if API_KEY is None:
+    logger.warning("API KEY IS NOT SET, TRANSLATION WILL NOT WORK")
 
 
 def translate(phrase: str,
@@ -51,8 +53,11 @@ def translate_df(df: pd.DataFrame, columns: List[str], dump_file: Optional[str] 
     during the function
     :return:
     """
+
     splitter = "\t|\t"
     copy_df = df.copy()
+    if dump_file is None and len(df) > 10:
+        logger.warning("It is highly advised to specify `dump_file` for big dataframes.")
     if dump_file is not None:
         f = open(dump_file, "w")
         for c in columns:
@@ -61,6 +66,7 @@ def translate_df(df: pd.DataFrame, columns: List[str], dump_file: Optional[str] 
         f.write("\n")
     try:
         for i in tqdm(range(len(df))):
+            print(i)
             for k in columns:
                 value = copy_df.iloc[i][k]
                 translation = translate(value)
@@ -71,5 +77,5 @@ def translate_df(df: pd.DataFrame, columns: List[str], dump_file: Optional[str] 
             if dump_file is not None:
                 f.write("\n")
     except:
-        logger.exception()
+        logger.exception("Failed to translate")
     return copy_df
