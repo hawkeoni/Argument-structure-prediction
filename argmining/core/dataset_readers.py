@@ -6,6 +6,7 @@ from allennlp.data.tokenizers import PretrainedTransformerTokenizer
 from allennlp.data.token_indexers import PretrainedTransformerIndexer
 from allennlp.data.fields import TextField, LabelField, MetadataField
 
+
 @DatasetReader.register("IBMReader")
 class ClaimsReader(DatasetReader):
 

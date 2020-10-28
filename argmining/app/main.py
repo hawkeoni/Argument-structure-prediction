@@ -1,10 +1,10 @@
 from allennlp.predictors import Predictor
 from flask import Flask, render_template, request
 
-# import src
+from argmining.core import TopicSentencePredictor
 
 app = Flask(__name__, template_folder="templates")
-# predictor = Predictor.from_path("model.tar.gz")
+predictor = Predictor.from_path("model.tar.gz")
 
 
 @app.route("/topic_claim", methods=["get", "post"])
@@ -14,8 +14,8 @@ def topic_claim():
     elif request.method == "POST":
         evidence = request.form.get('evidence')  # запрос к данным формы
         topic = request.form.get('topic')
-        return topic + " " + evidence
-        # return str(predictor.predict_texts(sentence=evidence, topic=topic))
+        query = {"sentence": evidence, "topic": topic}
+        return predictor.predict_json(query)
 
 
 if __name__ == "__main__":
