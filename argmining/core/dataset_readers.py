@@ -10,8 +10,6 @@ from allennlp.data.fields import TextField, LabelField, MetadataField
 @DatasetReader.register("IBMReader")
 class ClaimsReader(DatasetReader):
 
-    default_model_name = "bert-base-multilingual-cased"
-
     def __init__(self,
                  tokenizer: Tokenizer = None,
                  token_indexers: Dict[str, TokenIndexer] = None,
@@ -32,28 +30,29 @@ class ClaimsReader(DatasetReader):
         dfs = pd.read_csv(filepath, chunksize=100)
         for df in dfs:
             for rownum, row in df.iterrows():
-                topic = row["topic"]
-                sentence = row["candidate"]
+                claim = row["claim"]
+                evidence = row["evidence"]
                 label = row.get("label")
-                yield self.text_to_instance(sentence, topic, label)
+                yield self.text_to_instance(evidence, claim, label)
 
     def text_to_instance(
             self,
-            sentence: str,
-            topic: str = None,
-            label: int = None
+            evidence: str,
+            claim: str = None,
+            label: str = None
     ) -> Instance:
         fields = {}
-        sentence_tokens = self.tokenizer.tokenize(sentence)
+        sentence_tokens = self.tokenizer.tokenize(evidence)
         sentence_tokens[0] = self.sep_token
         topic_tokens = [self.cls_token, self.sep_token]
-        if topic:
-            topic_tokens = self.tokenizer.tokenize(topic)
+        if claim:
+            topic_tokens = self.tokenizer.tokenize(claim)
         tokens = topic_tokens + sentence_tokens
         tokens = tokens[:512]
         tokens[-1] = self.sep_token
         fields["tokens"] = TextField(tokens, token_indexers=self.token_indexers)
         if label is not None:
-            fields["labels"] = LabelField(label, skip_indexing=True)
-        fields["metadata"] = MetadataField({"topic": topic, "sentence": sentence})
+            assert label in ["Neutral", "Evidence"]
+            fields["labels"] = LabelField(label)
+        fields["metadata"] = MetadataField({"topic": claim, "sentence": evidence})
         return Instance(fields)

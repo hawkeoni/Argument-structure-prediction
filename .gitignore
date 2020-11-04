@@ -1,5 +1,5 @@
-datasets
-model.tar.gz
+*csv
+*.tar.gz
 embeddings
 __pycache__
 .DS_Store

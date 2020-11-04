@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Any
 
 import torch
 import torch.nn as nn
@@ -6,14 +6,14 @@ from allennlp.data import Vocabulary
 from allennlp.models.model import Model
 from allennlp.modules import Seq2VecEncoder, TextFieldEmbedder
 from allennlp.nn.util import get_text_field_mask
-from allennlp.training.metrics import FBetaMeasure
+from allennlp.training.metrics import F1Measure
 from allennlp.modules.token_embedders import PretrainedTransformerEmbedder
 from allennlp.modules.text_field_embedders import BasicTextFieldEmbedder
 
-from argmining.core import BertCLSPooler
+from argmining.core import *
 
 
-@Model.register("topic_sentence_model")
+@Model.register("BasicEntailmentModel")
 class TopicSentenceClassifier(Model):
 
     default_predictor = "topic_sentence_predictor"
@@ -36,7 +36,8 @@ class TopicSentenceClassifier(Model):
         self.dropout = nn.Dropout(dropout)
         self.clf = nn.Linear(self.encoder.get_output_dim(), 2)
         self.loss = nn.CrossEntropyLoss()
-        self.f1 = FBetaMeasure(average="micro")
+        positive_label = vocab.get_token_to_index_vocabulary("labels")["Evidence"]
+        self.f1 = F1Measure(positive_label=positive_label)
 
     def forward(self,
                 tokens: Dict[str, Dict[str, torch.LongTensor]],
@@ -60,3 +61,12 @@ class TopicSentenceClassifier(Model):
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
         metrics = self.f1.get_metric(reset)
         return metrics
+
+    def make_output_human_readable(
+        self, output_dict: Dict[str, torch.Tensor]
+    ) -> Dict[str, Any]:
+        logits = output_dict["logits"]
+        classes = logits.argmax(dim=1).detach().cpu().numpy()
+        idx_to_class = self.vocab.get_index_to_token_vocabulary("labels")
+        output_dict["result"] = [idx_to_class[cls] for cls in classes]
+        return output_dict
