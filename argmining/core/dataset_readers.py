@@ -9,13 +9,12 @@ from allennlp.data.fields import TextField, LabelField, MetadataField
 
 @DatasetReader.register("IBMReader")
 class ClaimsReader(DatasetReader):
-
     def __init__(self,
                  tokenizer: Tokenizer = None,
                  token_indexers: Dict[str, TokenIndexer] = None,
                  lazy: bool = False):
         super().__init__(lazy=lazy)
-        self.tokenizer = tokenizer or PretrainedTransformerTokenizer(self.default_model_name)
+        self.tokenizer = tokenizer or PretrainedTransformerTokenizer("bert-base-multilingual-cased")
         cls = self.tokenizer.tokenizer.cls_token
         cls_idx = self.tokenizer.tokenizer.cls_token_id
         sep = self.tokenizer.tokenizer.sep_token
@@ -23,7 +22,7 @@ class ClaimsReader(DatasetReader):
         self.cls_token = Token(text=cls, text_id=cls_idx)
         self.sep_token = Token(text=sep, text_id=sep_idx)
         self.token_indexers = token_indexers or {
-            "tokens": PretrainedTransformerIndexer(self.default_model_name)
+            "tokens": PretrainedTransformerIndexer("bert-base-multilingual-cased")
         }
 
     def _read(self, filepath: str) -> Iterable[Instance]:
@@ -48,7 +47,7 @@ class ClaimsReader(DatasetReader):
         if claim:
             topic_tokens = self.tokenizer.tokenize(claim)
         tokens = topic_tokens + sentence_tokens
-        tokens = tokens[:512]
+        tokens = tokens[:256]
         tokens[-1] = self.sep_token
         fields["tokens"] = TextField(tokens, token_indexers=self.token_indexers)
         if label is not None:
