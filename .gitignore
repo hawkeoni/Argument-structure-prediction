@@ -1,8 +1,10 @@
-datasets
-model*
+wandb
+*csv
+*.tar.gz
 embeddings
 __pycache__
 .DS_Store
 .idea
 reports
 .ipynb_checkpoints
+*egg-info
