@@ -11,4 +11,6 @@ class TopicSentencePredictor(Predictor):
 
     def predict_json(self, inputs: JsonDict) -> JsonDict:
         instance = self._json_to_instance(inputs)
-        return self.predict_instance(instance)
+        result = self.predict_instance(instance)
+        result["positive_prob"] = result["probs"][self._model.positive_label]
+        return result

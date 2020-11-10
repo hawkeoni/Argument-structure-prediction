@@ -36,8 +36,8 @@ class TopicSentenceClassifier(Model):
         self.dropout = nn.Dropout(dropout)
         self.clf = nn.Linear(self.encoder.get_output_dim(), 2)
         self.loss = nn.CrossEntropyLoss()
-        positive_label = vocab.get_token_to_index_vocabulary("labels")["Evidence"]
-        self.f1 = F1Measure(positive_label=positive_label)
+        self.positive_label = vocab.get_token_to_index_vocabulary("labels")["Evidence"]
+        self.f1 = F1Measure(positive_label=self.positive_label)
 
     def forward(self,
                 tokens: Dict[str, Dict[str, torch.LongTensor]],
