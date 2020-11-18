@@ -1,0 +1,55 @@
+local model_name = "bert-base-multilingual-cased";
+
+{
+    "dataset_reader" : {
+        "type": "CSReader",
+        "tokenizer": {
+            "type": "pretrained_transformer",
+            "model_name": model_name
+        },
+        "token_indexers": {
+            "tokens": {
+                "type": "pretrained_transformer",
+                "model_name": model_name
+            }
+        }
+    },
+    "train_data_path": "/hdd/Thesis/datasets/ibm_cs_train.csv",
+    "validation_data_path": "/hdd/Thesis/datasets/ibm_cs_test.csv",
+    "model": {
+        "type": "StanceModel",
+        "embedder": {
+            "type": "basic",
+            "token_embedders": {
+                "tokens": {
+                    "type": "pretrained_transformer",
+                    "model_name": model_name
+                }
+            }
+        },
+        "threshold": 0.5
+    },
+    "data_loader": {
+        "batch_size": 32
+    },
+    "trainer": {
+        "optimizer": {
+            "type": "adam",
+            "lr": 2e-5,
+            "parameter_groups": [
+                [["embedder.token_embedder_tokens.transformer_model.embeddings.*"], {"requires_grad": false}]
+            ]
+        },
+        "epoch_callbacks": [
+            {
+                "type": "wandb",
+                "project": "claim_stance",
+                "run_name": "claim_stance_mbert",
+                "metrics_regex": "accuracy"
+            }
+        ],
+        "num_epochs": 15,
+        "patience": 3,
+        "validation_metric": "+accuracy"
+    }
+}
