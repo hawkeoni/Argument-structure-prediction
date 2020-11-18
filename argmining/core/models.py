@@ -11,6 +11,7 @@ from allennlp.modules.token_embedders import PretrainedTransformerEmbedder
 from allennlp.modules.text_field_embedders import BasicTextFieldEmbedder
 
 from argmining.core import *
+from argmining.core.metrics import ThresholdAccuracy
 
 
 @Model.register("BasicEntailmentModel")
@@ -112,7 +113,8 @@ class TopicSentenceClassifier(Model):
         probs = torch.sigmoid(logits)
         output_dict = {"probs": probs, "logits": logits}
         if labels is not None:
-            loss = self.loss(logits, labels)
+            labels = labels.view(-1)
+            loss = self.loss(probs, labels)
             output_dict["loss"] = loss
             self.accuracy(probs, labels)
         return output_dict

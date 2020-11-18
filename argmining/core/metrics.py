@@ -1,11 +1,11 @@
-from typing import Dict
+from typing import Dict, Optional
 
 import torch
 
 from allennlp.training.metrics import Metric
 
 
-@Metric.Register("threshold_accuracy")
+@Metric.register("threshold_accuracy")
 class ThresholdAccuracy:
 
     def __init__(self, threshold: float = 0.5):
@@ -17,7 +17,7 @@ class ThresholdAccuracy:
         self.total = 0
         self.correct = 0
 
-    def get_metrics(self, reset: bool) -> Dict[str, float]:
+    def get_metric(self, reset: bool) -> Dict[str, float]:
         accuracy = self.correct / (self.total + 1e-12)
         if reset:
             self.reset()
@@ -27,7 +27,10 @@ class ThresholdAccuracy:
         self, 
         predictions: torch.Tensor, 
         gold_labels: torch.Tensor, 
-        mask: Optional[torch.BoolTensor] = None):
-    predictions = predictions > self.threshold
-    self.total += len(predictions)
-    self.correct += (predictions * gold_labels).sum()
+        mask: Optional[torch.BoolTensor] = None
+        ):
+        self.total += predictions.numel()
+        binarized_predictions = (predictions >= self.threshold).float()
+        assert len(binarized_predictions.shape) == 1
+        assert len(gold_labels.shape) == 1
+        self.correct += (binarized_predictions == gold_labels).sum().item()

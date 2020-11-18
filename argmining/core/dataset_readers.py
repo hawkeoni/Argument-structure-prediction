@@ -93,13 +93,13 @@ class ClaimStanceReader(DatasetReader):
     ) -> Instance:
         fields = {}
         target_tokens = self.tokenizer.tokenize(target)
-        claim_tokens = self.tokenizer.tokeniez(claim)
+        claim_tokens = self.tokenizer.tokenize(claim)
         # skipping [cls]
         claim_tokens = claim_tokens[1:]
         tokens = target_tokens + claim_tokens
-        field["tokens"] = TextField(tokens, token_indexers=self.token_indexers)
+        fields["tokens"] = TextField(tokens, token_indexers=self.token_indexers)
         if label is not None:
-            field["label"] = ArrayField(np.array([(label + 1) // 2], dtype=np.float))
+            fields["labels"] = ArrayField(np.array([(label + 1) // 2], dtype=np.float))
             # label in df is -1 or 1, we make it 0 and 1
         return Instance(fields)
 
