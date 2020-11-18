@@ -129,7 +129,7 @@ class TopicSentenceClassifier(Model):
         new_dict = {}
         probs = output_dict["probs"] # number from [0; 1]
         binarized = (probs > self.threshold).detach().cpu().tolist()
-        binarized = ["PRO" if p else "CON"]
+        binarized = ["PRO" if p else "CON" for p in binarized]
         new_dict["class"] = binarized
         new_dict["score"] = -1 + probs * 2
         return new_dict

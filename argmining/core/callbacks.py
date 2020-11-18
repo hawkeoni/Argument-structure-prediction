@@ -1,9 +1,13 @@
 import re
+import logging
 from typing import Dict, Any
 from pathlib import Path
 
 import wandb
 from allennlp.training import EpochCallback, GradientDescentTrainer
+
+
+# 
 
 
 @EpochCallback.register("wandb")
@@ -19,8 +23,10 @@ class WandbCallback(EpochCallback):
                  ):
         self.project = project
         self.metrics_regex = metrics_regex
-        self.run = wandb.init(project=project, job_type="train", name=run_name)
+        self.run = wandb.init(project=project, job_type="train")
         self.saved_config = False
+        if run_name is not None:
+            print("Run name deprecated")
 
     def __call__(
             self,
@@ -37,6 +43,7 @@ class WandbCallback(EpochCallback):
             config_path = str(Path(trainer._serialization_dir) / "config.json")
             artifact.add_file(config_path)
             self.run.log_artifact(artifact)
+            self.run.name = trainer._serialization_dir
 
         for metric_name, metric_value in metrics.items():
             if isinstance(metric_value, (float, int)) and \
