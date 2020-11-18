@@ -63,6 +63,10 @@ def predict_cs():
     del request.json["model"]
     return jsonify(predictor.predict_json(request.json))
 
+@app.route("/reload")
+def reload():
+    app_dict.update(load_models_from_directory(Path(os.environ.get("MODEL_PATH"))))
+    return jsonify({"status": "OK"})
 
 if __name__ == "__main__":
     app_dict.update(init_app())
