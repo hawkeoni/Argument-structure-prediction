@@ -17,6 +17,7 @@ def get_topic_text_dataset(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame
         })
     train_mask = df["split"] == "train"
     df = df[["target", "claim", "stance"]]
+    df.stance = df.stance.apply(lambda x: -1 if x == "CON" else 1)
     return df[train_mask], df[~train_mask]
 
 
@@ -66,6 +67,7 @@ def get_neutral_examples(stance_folder: Path, df: pd.DataFrame) -> [pd.DataFrame
         article_text = (stance_folder / article_name).read_text()
         spans = sub_df[["claims.article.cleanSpan.start", "claims.article.cleanSpan.end"]].values.tolist()
         neutral_cutouts = get_random_cutouts(article_text, spans)
+        neutral_cutouts = choices(neutral_cutouts, k=10)
         targets = sub_df.iloc[0][["topicText", "topicTarget"]].values.tolist()
         split = sub_df.iloc[0].split
         # we have neutral_cutouts and targets

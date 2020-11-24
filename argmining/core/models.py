@@ -96,7 +96,7 @@ class TopicSentenceClassifier(Model):
         self.encoder = encoder or BertCLSPooler(self.embedder.get_output_dim())
         self.dropout = nn.Dropout(dropout)
         self.clf = nn.Linear(self.encoder.get_output_dim(), 1)
-        self.loss = nn.BCELoss()
+        self.loss = nn.L1Loss()
         self.threshold = threshold
         self.accuracy = ThresholdAccuracy(threshold)
 
@@ -110,13 +110,14 @@ class TopicSentenceClassifier(Model):
         encoded_cls = self.encoder(embedded, mask)
         logits = self.clf(encoded_cls).squeeze(1)
         # logits - batch_size
-        probs = torch.sigmoid(logits)
-        output_dict = {"probs": probs, "logits": logits}
+        pred = torch.tanh(logits)
+        output_dict = {"pred": pred, "logits": logits}
         if labels is not None:
             labels = labels.view(-1)
-            loss = self.loss(probs, labels)
+            # labels - batch_size
+            loss = self.loss(pred, labels)
             output_dict["loss"] = loss
-            self.accuracy(probs, labels)
+            self.accuracy(pred, labels)
         return output_dict
 
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
@@ -127,9 +128,17 @@ class TopicSentenceClassifier(Model):
         self, output_dict: Dict[str, torch.Tensor]
     ) -> Dict[str, Any]:
         new_dict = {}
-        probs = output_dict["probs"] # number from [0; 1]
-        binarized = (probs > self.threshold).detach().cpu().tolist()
-        binarized = ["PRO" if p else "CON" for p in binarized]
+        pred = output_dict["pred"]  # number from [0; 1]
+        pred = pred.detach().cpu().tolist()
+        binarized = []
+        for p in pred:
+            if pred >= 0.34:
+                binarized.append("PRO")
+            elif pred <= -0.34:
+                binarized.append("CON")
+            else:
+                pred.append("NEUTRAL")
         new_dict["class"] = binarized
-        new_dict["score"] = -1 + probs * 2
+        new_dict["score"] = pred
         return new_dict
+
