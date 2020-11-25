@@ -24,13 +24,18 @@ class ThresholdAccuracy:
         return {"accuracy": accuracy}
 
     def __call__(
-        self, 
-        predictions: torch.Tensor, 
-        gold_labels: torch.Tensor, 
+        self,
+        predictions: torch.Tensor,
+        gold_labels: torch.Tensor,
         mask: Optional[torch.BoolTensor] = None
         ):
-        self.total += predictions.numel()
-        binarized_predictions = (predictions >= self.threshold).float()
-        assert len(binarized_predictions.shape) == 1
+        assert len(predictions.shape) == 1
         assert len(gold_labels.shape) == 1
-        self.correct += (binarized_predictions == gold_labels).sum().item()
+        self.total += predictions.numel()
+        pros = (predictions >= 0.34)
+        cons = (predictions <= -0.34)
+        neut = (-0.34 < predictions) * (predictions < 0.34)
+        assert (pros * cons * neut).sum().item() == 0
+        self.correct += (pros * (gold_labels == 1.)).sum().item()
+        self.correct += (cons * (gold_labels == -1.)).sum().item()
+        self.correct += (neut * (gold_labels == 0.)).sum().item()

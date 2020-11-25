@@ -99,8 +99,6 @@ class ClaimStanceReader(DatasetReader):
         tokens = target_tokens + claim_tokens
         fields["tokens"] = TextField(tokens, token_indexers=self.token_indexers)
         if label is not None:
-            fields["labels"] = ArrayField(np.array([(label + 1) // 2], dtype=np.float))
-            # label in df is -1 or 1, we make it 0 and 1
+            fields["labels"] = ArrayField(np.array([label], dtype=np.float))
+            # -1, 0, 1
         return Instance(fields)
-
-
