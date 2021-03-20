@@ -1,3 +1,4 @@
+import json
 from typing import Dict, List, Iterable
 
 import pandas as pd
@@ -101,4 +102,37 @@ class ClaimStanceReader(DatasetReader):
         if label is not None:
             fields["labels"] = ArrayField(np.array([label], dtype=np.float))
             # -1, 0, 1
+        return Instance(fields)
+
+
+class NLIReader(DatasetReader):
+
+    def __init__(self,
+                 tokenizer: Tokenizer = None,
+                 token_indexers: Dict[str, TokenIndexer] = None,
+                 lazy: bool = False):
+        super().__init__(lazy)
+        assert isinstance(tokenizer, PretrainedTransformerTokenizer)
+        self._tokenizer = tokenizer
+        self._token_indexers = token_indexers
+
+    def _read(self, filepath: str) -> Iterable[Instance]:
+        for line in open(filepath):
+            d = json.loads(line)
+            yield self.text_to_instance(d["sentence1"], d["sentence2"], d["gold_label"])
+
+    def text_to_instance(
+            self,
+            text: str,
+            hypothesis: str,
+            label: str = None
+    ) -> Instance:
+        fields = {}
+        # to make it look like [cls] sent1 [sep] sent2 [sep]
+        tokens = self._tokenizer.tokenize(text) + self._tokenizer.tokenize(hypothesis)[1:]
+        fields["tokens"] = TextField(tokens, self._token_indexers)
+
+        if label is not None:
+            fields["labels"] = LabelField(label)
+
         return Instance(fields)
