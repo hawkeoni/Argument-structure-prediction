@@ -2,11 +2,12 @@ from typing import Dict, Any
 
 import torch
 import torch.nn as nn
+from torch.nn.functional import cross_entropy
 from allennlp.data import Vocabulary
 from allennlp.models.model import Model
 from allennlp.modules import Seq2VecEncoder, TextFieldEmbedder
 from allennlp.nn.util import get_text_field_mask
-from allennlp.training.metrics import F1Measure
+from allennlp.training.metrics import FBetaMeasure, CategoricalAccuracy, F1Measure
 from allennlp.modules.token_embedders import PretrainedTransformerEmbedder
 from allennlp.modules.text_field_embedders import BasicTextFieldEmbedder
 
@@ -142,3 +143,62 @@ class TopicSentenceClassifier(Model):
         new_dict["score"] = pred
         return new_dict
 
+@Model.register("NLIModel")
+class NLIModel(Model):
+
+    def __init__(self,
+                 vocab: Vocabulary,
+                 embedder: TextFieldEmbedder = None,
+                 encoder: Seq2VecEncoder = None,
+                 dropout: float = 0.3):
+        super().__init__(vocab)
+        self.embedder = embedder
+        if embedder is None:
+            embedder = BasicTextFieldEmbedder(
+                {
+                    "tokens": PretrainedTransformerEmbedder("bert-base-multilingual-cased")
+                }
+            )
+            self.embedder = embedder
+        self.encoder = encoder or BertCLSPooler(self.embedder.get_output_dim())
+        self.dropout = nn.Dropout(dropout)
+        num_classes = self.vocab.get_vocab_size("labels")
+        assert num_classes > 0, "Wrong namespace for labels apparently"
+        self.clf = nn.Linear(self.encoder.get_output_dim(), num_classes)
+        self.accuracy = CategoricalAccuracy()
+        self.f1 = FBetaMeasure(average=None, labels=[0, 1, 2])
+
+    def forward(self,
+                tokens: Dict[str, Dict[str, torch.LongTensor]],
+                labels: torch.LongTensor = None,
+                **kwargs) -> Dict[str, torch.Tensor]:
+        mask = get_text_field_mask(tokens)
+        embedded = self.embedder(tokens)
+        embedded = self.dropout(embedded)
+        encoded_cls = self.encoder(embedded, mask)
+        logits = self.clf(encoded_cls)
+        # logits - batch_size, num_classes
+        output_dict = {"logits": logits}
+        if labels is not None:
+            # labels - batch_size
+            labels = labels.view(-1)
+            loss = cross_entropy(logits, labels)
+            output_dict["loss"] = loss
+            self.accuracy(logits, labels)
+            self.f1(logits, labels)
+        return output_dict
+
+    def get_metrics(self, reset: bool = False) -> Dict[str, float]:
+        metrics = {}
+        acc: float = self.accuracy.get_metric(reset)
+        metrics["accuracy"] = acc
+        f1 = self.f1.get_metric(reset)
+        for name, idx in self.vocab.get_token_to_index_vocabulary("labels").items():
+            for metric_name, value in f1.items():
+                metrics[name + "_" + metric_name] = value[idx]
+        return metrics
+
+    def make_output_human_readable(
+            self, output_dict: Dict[str, torch.Tensor]
+    ) -> Dict[str, Any]:
+        return output_dict

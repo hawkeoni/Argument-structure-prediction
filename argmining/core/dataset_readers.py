@@ -105,6 +105,7 @@ class ClaimStanceReader(DatasetReader):
         return Instance(fields)
 
 
+@DatasetReader.register("NLIReader")
 class NLIReader(DatasetReader):
 
     def __init__(self,
@@ -119,6 +120,8 @@ class NLIReader(DatasetReader):
     def _read(self, filepath: str) -> Iterable[Instance]:
         for line in open(filepath):
             d = json.loads(line)
+            if d["gold_label"] == "-":
+                continue
             yield self.text_to_instance(d["sentence1"], d["sentence2"], d["gold_label"])
 
     def text_to_instance(
