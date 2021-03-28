@@ -146,6 +146,8 @@ class TopicSentenceClassifier(Model):
 @Model.register("NLIModel")
 class NLIModel(Model):
 
+    default_predictor = "NLIPredictor"
+
     def __init__(self,
                  vocab: Vocabulary,
                  embedder: TextFieldEmbedder = None,
@@ -166,7 +168,7 @@ class NLIModel(Model):
         assert num_classes > 0, "Wrong namespace for labels apparently"
         self.clf = nn.Linear(self.encoder.get_output_dim(), num_classes)
         self.accuracy = CategoricalAccuracy()
-        self.f1 = FBetaMeasure(average=None, labels=[0, 1, 2])
+        self.f1 = FBetaMeasure(average=None, labels=list(range(self.vocab.get_vocab_size("labels"))))
 
     def forward(self,
                 tokens: Dict[str, Dict[str, torch.LongTensor]],

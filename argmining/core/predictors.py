@@ -1,5 +1,6 @@
+from allennlp.models import Model
 from allennlp.common import JsonDict
-from allennlp.data import Instance
+from allennlp.data import Instance, DatasetReader
 from allennlp.predictors import Predictor
 
 
@@ -25,4 +26,27 @@ class ClaimStancePredictor(Predictor):
     def predict_json(self, inputs: JsonDict) -> JsonDict:
         instance = self._json_to_instance(inputs)
         result = self.predict_instance(instance)
+        return result
+
+
+@Predictor.register("NLIPredictor")
+class NLIPredictor(Predictor):
+
+    def __init__(self, model: Model, dataset_reader: DatasetReader, frozen: bool = True, neutral: bool = True) -> None:
+        super().__init__(model, dataset_reader, frozen)
+        self.neutral = neutral
+        self.label2idx = self._model.vocab.get_token_to_index_vocabulary("labels")
+        self.idx2label = self._model.vocab.get_index_to_token_vocabulary("labels")
+
+    def _json_to_instance(self, json_dict: JsonDict) -> Instance:
+        return self._dataset_reader.text_to_instance(json_dict["sentence1"],
+                                                     json_dict["sentence2"],
+                                                     json_dict.get("gold_label"))
+
+    def predict_json(self, inputs: JsonDict) -> JsonDict:
+        instance = self._json_to_instance(inputs)
+        result = self.predict_instance(instance)
+        if not self.neutral:
+            result["logits"][self.label2idx["neutral"]] = -1e12
+        result["class"] = self.idx2label[result["logits"].argmax().item()]
         return result
