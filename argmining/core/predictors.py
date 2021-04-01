@@ -37,6 +37,7 @@ class NLIPredictor(Predictor):
         self.neutral = neutral
         self.label2idx = self._model.vocab.get_token_to_index_vocabulary("labels")
         self.idx2label = self._model.vocab.get_index_to_token_vocabulary("labels")
+        self.labels = list(self.label2idx.keys())
 
     def _json_to_instance(self, json_dict: JsonDict) -> Instance:
         return self._dataset_reader.text_to_instance(json_dict["sentence1"],
@@ -46,7 +47,7 @@ class NLIPredictor(Predictor):
     def predict_json(self, inputs: JsonDict) -> JsonDict:
         instance = self._json_to_instance(inputs)
         result = self.predict_instance(instance)
-        if not self.neutral:
-            result["logits"][self.label2idx["neutral"]] = -1e12
-        result["class"] = self.idx2label[result["logits"].argmax().item()]
+        result["labels"] = self.labels
+        result["scores"] = {k: v for k, v in zip(self.labels, result["logits"])}
+
         return result
