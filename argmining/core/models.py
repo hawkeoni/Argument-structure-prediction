@@ -204,3 +204,68 @@ class NLIModel(Model):
             self, output_dict: Dict[str, torch.Tensor]
     ) -> Dict[str, Any]:
         return output_dict
+
+@Model.register("NLIModelVectorized")
+class NLIModelVectorized(NLIModel):
+
+    default_predictor = "NLIPredictorVectorized"
+
+    def __init__(self,
+                 vocab: Vocabulary,
+                 embedder: TextFieldEmbedder = None,
+                 encoder: Seq2VecEncoder = None,
+                 dropout: float = 0.3,
+                 highway: bool = False):
+        super().__init__(vocab)
+        self.embedder = embedder
+        if embedder is None:
+            embedder = BasicTextFieldEmbedder(
+                {
+                    "tokens": PretrainedTransformerEmbedder("bert-base-multilingual-cased")
+                }
+            )
+            self.embedder = embedder
+        self.encoder = encoder or BertCLSPooler(self.embedder.get_output_dim())
+        self.dropout = nn.Dropout(dropout)
+        num_classes = self.vocab.get_vocab_size("labels")
+        assert num_classes > 0, "Wrong namespace for labels apparently"
+        self.highway = highway
+        if not highway:
+            self.clf = nn.Linear(self.encoder.get_output_dim() * 2, num_classes)
+        else:
+            output_dim = self.encoder.get_output_dim()
+            self.clf = nn.Sequential(nn.Linear(output_dim * 2, output_dim),
+                                     nn.Sigmoid(),
+                                     nn.Linear(output_dim, num_classes))
+        self.accuracy = CategoricalAccuracy()
+        self.f1 = FBetaMeasure(average=None, labels=list(range(self.vocab.get_vocab_size("labels"))))
+
+
+    def forward(self,
+                tokens1: Dict[str, Dict[str, torch.LongTensor]],
+                tokens2: Dict[str, Dict[str, torch.LongTensor]],
+                labels: torch.LongTensor = None,
+                **kwargs) -> Dict[str, torch.Tensor]:
+        mask1 = get_text_field_mask(tokens1)
+        embedded1 = self.embedder(tokens1)
+        embedded1 = self.dropout(embedded1)
+
+        mask2 = get_text_field_mask(tokens2)
+        embedded2 = self.embedder(tokens2)
+
+        encoded1 = self.encoder(embedded1, mask1)
+        encoded2 = self.encoder(embedded2, mask2)
+        # encodedi - [batch, d_model]
+        encoded_cls = torch.cat((encoded1, encoded2), dim=1)
+
+        logits = self.clf(encoded_cls)
+        # logits - batch_size, num_classes
+        output_dict = {"logits": logits}
+        if labels is not None:
+            # labels - batch_size
+            labels = labels.view(-1)
+            loss = cross_entropy(logits, labels)
+            output_dict["loss"] = loss
+            self.accuracy(logits, labels)
+            self.f1(logits, labels)
+        return output_dict

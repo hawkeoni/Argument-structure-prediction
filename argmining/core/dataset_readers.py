@@ -139,3 +139,24 @@ class NLIReader(DatasetReader):
             fields["labels"] = LabelField(label)
 
         return Instance(fields)
+
+@DatasetReader.register("NLIReaderVectorized")
+class NLIReaderVectorized(NLIReader):
+
+    def text_to_instance(
+            self,
+            text: str,
+            hypothesis: str,
+            label: str = None
+    ) -> Instance:
+        fields = {}
+        # to make it look like [cls] sent1 [sep] sent2 [sep]
+        tokens1 = self._tokenizer.tokenize(text)
+        tokens2 = self._tokenizer.tokenize(hypothesis)
+        fields["tokens1"] = TextField(tokens1, self._token_indexers)
+        fields["tokens2"] = TextField(tokens2, self._token_indexers)
+
+        if label is not None:
+            fields["labels"] = LabelField(label)
+
+        return Instance(fields)
