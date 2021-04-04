@@ -132,7 +132,11 @@ class NLIReader(DatasetReader):
     ) -> Instance:
         fields = {}
         # to make it look like [cls] sent1 [sep] sent2 [sep]
-        tokens = self._tokenizer.tokenize(text) + self._tokenizer.tokenize(hypothesis)[1:]
+        tokens1 = self._tokenizer.tokenize(text)
+        tokens2 = self._tokenizer.tokenize(hypothesis)[1:]
+        for token in tokens2:
+            token.type_id = 1
+        tokens = tokens1 + tokens2
         fields["tokens"] = TextField(tokens, self._token_indexers)
 
         if label is not None:
