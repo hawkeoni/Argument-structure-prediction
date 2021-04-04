@@ -17,7 +17,6 @@ from argmining.core.metrics import ThresholdAccuracy
 
 @Model.register("BasicEntailmentModel")
 class TopicSentenceClassifier(Model):
-
     default_predictor = "topic_sentence_predictor"
 
     def __init__(self,
@@ -58,7 +57,7 @@ class TopicSentenceClassifier(Model):
         return metrics
 
     def make_output_human_readable(
-        self, output_dict: Dict[str, torch.Tensor]
+            self, output_dict: Dict[str, torch.Tensor]
     ) -> Dict[str, Any]:
         logits = output_dict["logits"]
         classes = logits.argmax(dim=1).detach().cpu().numpy()
@@ -69,7 +68,6 @@ class TopicSentenceClassifier(Model):
 
 @Model.register("StanceModel")
 class TopicSentenceClassifier(Model):
-
     default_predictor = "claim_stance_predictor"
 
     def __init__(self,
@@ -112,7 +110,7 @@ class TopicSentenceClassifier(Model):
         return metrics
 
     def make_output_human_readable(
-        self, output_dict: Dict[str, torch.Tensor]
+            self, output_dict: Dict[str, torch.Tensor]
     ) -> Dict[str, Any]:
         new_dict = {}
         pred = output_dict["pred"]  # number from [0; 1]
@@ -129,9 +127,9 @@ class TopicSentenceClassifier(Model):
         new_dict["score"] = pred
         return new_dict
 
+
 @Model.register("NLIModel")
 class NLIModel(Model):
-
     default_predictor = "NLIPredictor"
 
     def __init__(self,
@@ -184,9 +182,9 @@ class NLIModel(Model):
     ) -> Dict[str, Any]:
         return output_dict
 
+
 @Model.register("NLIModelVectorized")
 class NLIModelVectorized(NLIModel):
-
     default_predictor = "NLIPredictorVectorized"
 
     def __init__(self,
@@ -211,7 +209,6 @@ class NLIModelVectorized(NLIModel):
                                      nn.Linear(output_dim, num_classes))
         self.accuracy = CategoricalAccuracy()
         self.f1 = FBetaMeasure(average=None, labels=list(range(self.vocab.get_vocab_size("labels"))))
-
 
     def forward(self,
                 tokens1: Dict[str, Dict[str, torch.LongTensor]],
@@ -242,9 +239,9 @@ class NLIModelVectorized(NLIModel):
             self.f1(logits, labels)
         return output_dict
 
+
 @Model.register("NLIModelSE")
 class NLIModelSE(NLIModel):
-
     default_predictor = "NLIPredictor"
 
     def __init__(self,
@@ -263,7 +260,38 @@ class NLIModelSE(NLIModel):
         self.f1 = FBetaMeasure(average=None, labels=list(range(self.vocab.get_vocab_size("labels"))))
 
     def generate_span_masks(self, middle: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
-        return torch.Tensor(1)
+        middle = middle.detach().tolist()  # [batch_size]
+        # mask - [batch_size, seq_len]
+        lengths = mask.detach().sum(dim=1).tolist()
+        # lengths - [batch_size]
+        maxlen = max(lengths)
+        num_spans = (maxlen - 1) * (maxlen - 2) / 2
+        # span_masks should be [batch_size, span_num]
+        batch_size = mask.shape[0]
+        span_masks = [[0 for _ in range(maxlen)] for _ in range(batch_size)]
+        """        
+        for start_index, end_index in zip(start_indexs, end_indexs):
+            if 1 <= start_index <= length.item() - 2 and 1 <= end_index <= length.item() - 2 and (
+                start_index > middle_index or end_index < middle_index):
+                span_mask.append(0)
+            else:
+                span_mask.append(1e6)
+        """
+        for batch_idx in range(batch_size):
+            sample_middle: int = middle[batch_idx]
+            sample_length: int = lengths[batch_idx]
+            column = 0
+            for span_start in range(1, maxlen - 1):
+                for span_end in range(span_start, maxlen - 1):
+                    if 1 <= span_start <= sample_length - 2 and 1 <= span_end <= sample_length - 2 and (
+                            span_start > sample_middle or span_end < sample_middle):
+                        span_masks[batch_idx][column] = 0
+                    else:
+                        span_masks[batch_idx][column] = 1e-6
+                    column += 1
+                assert column == maxlen
+
+        return torch.LongTensor(span_masks).to(mask.device)
 
     def forward(self,
                 tokens: Dict[str, Dict[str, torch.LongTensor]],
