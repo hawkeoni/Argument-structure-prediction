@@ -241,7 +241,8 @@ class NLIModelVectorized(NLIModel):
 
 
 @Model.register("NLIModelSE")
-class NLIModelSE(NLIModel):
+class NLIModelSE(Model):
+
     default_predictor = "NLIPredictor"
 
     def __init__(self,
@@ -255,22 +256,22 @@ class NLIModelSE(NLIModel):
         self.dropout = nn.Dropout(dropout)
         num_classes = self.vocab.get_vocab_size("labels")
         assert num_classes > 0, "Wrong namespace for labels apparently"
-        self.sic = SICModel(self.encoder.get_output_dim())
-        self.interp = InterpretationModel(self.encoder.get_output_dim())
-        self.clf = nn.Linear(self.encoder.get_output_dim(), num_classes)
+        self.sic = SICModel(self.embedder.get_output_dim())
+        self.interp = InterpretationModel(self.embedder.get_output_dim())
+        self.clf = nn.Linear(self.embedder.get_output_dim(), num_classes)
         self.accuracy = CategoricalAccuracy()
         self.f1 = FBetaMeasure(average=None, labels=list(range(self.vocab.get_vocab_size("labels"))))
 
     def generate_span_masks(self, middle: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
-        middle = middle.detach().tolist()  # [batch_size]
+        middle = middle.detach().view(-1).tolist()  # [batch_size, 1]
         # mask - [batch_size, seq_len]
         lengths = mask.detach().sum(dim=1).tolist()
         # lengths - [batch_size]
         maxlen = max(lengths)
-        num_spans = (maxlen - 1) * (maxlen - 2) / 2
+        num_spans = (maxlen - 1) * (maxlen - 2) // 2
         # span_masks should be [batch_size, span_num]
         batch_size = mask.shape[0]
-        span_masks = [[0 for _ in range(maxlen)] for _ in range(batch_size)]
+        span_masks = [[0 for _ in range(num_spans)] for _ in range(batch_size)]
         """        
         for start_index, end_index in zip(start_indexs, end_indexs):
             if 1 <= start_index <= length.item() - 2 and 1 <= end_index <= length.item() - 2 and (
@@ -291,7 +292,7 @@ class NLIModelSE(NLIModel):
                     else:
                         span_masks[batch_idx][column] = 1e-6
                     column += 1
-                assert column == maxlen
+            assert column == num_spans, f"{column}, {num_spans}, {maxlen}"
 
         return torch.LongTensor(span_masks).to(mask.device)
 
@@ -316,7 +317,17 @@ class NLIModelSE(NLIModel):
             labels = labels.view(-1)
             loss = cross_entropy(logits, labels)
             alpha2 = alphas * alphas
-            output_dict["loss"] = loss + self.lamb * alpha2.sum(dim=1).mean()
+            output_dict["loss"] = loss + self.lambd * alpha2.sum(dim=1).mean()
             self.accuracy(logits, labels)
             self.f1(logits, labels)
         return output_dict
+
+    def get_metrics(self, reset: bool = False) -> Dict[str, float]:
+        metrics = {}
+        acc: float = self.accuracy.get_metric(reset)
+        metrics["accuracy"] = acc
+        f1 = self.f1.get_metric(reset)
+        for name, idx in self.vocab.get_token_to_index_vocabulary("labels").items():
+            for metric_name, value in f1.items():
+                metrics[name + "_" + metric_name] = value[idx]
+        return metrics
