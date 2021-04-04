@@ -27,13 +27,6 @@ class TopicSentenceClassifier(Model):
                  dropout: float = 0.3):
         super().__init__(vocab)
         self.embedder = embedder
-        if embedder is None:
-            embedder = BasicTextFieldEmbedder(
-                {
-                    "tokens": PretrainedTransformerEmbedder("bert-base-multilingual-cased")
-                }
-            )
-            self.embedder = embedder
         self.encoder = encoder or BertCLSPooler(self.embedder.get_output_dim())
         self.dropout = nn.Dropout(dropout)
         self.clf = nn.Linear(self.encoder.get_output_dim(), 2)
@@ -87,13 +80,6 @@ class TopicSentenceClassifier(Model):
                  threshold: float = 0.5):
         super().__init__(vocab)
         self.embedder = embedder
-        if embedder is None:
-            embedder = BasicTextFieldEmbedder(
-                {
-                    "tokens": PretrainedTransformerEmbedder("bert-base-multilingual-cased")
-                }
-            )
-            self.embedder = embedder
         self.encoder = encoder or BertCLSPooler(self.embedder.get_output_dim())
         self.dropout = nn.Dropout(dropout)
         self.clf = nn.Linear(self.encoder.get_output_dim(), 1)
@@ -155,13 +141,6 @@ class NLIModel(Model):
                  dropout: float = 0.3):
         super().__init__(vocab)
         self.embedder = embedder
-        if embedder is None:
-            embedder = BasicTextFieldEmbedder(
-                {
-                    "tokens": PretrainedTransformerEmbedder("bert-base-multilingual-cased")
-                }
-            )
-            self.embedder = embedder
         self.encoder = encoder or BertCLSPooler(self.embedder.get_output_dim())
         self.dropout = nn.Dropout(dropout)
         num_classes = self.vocab.get_vocab_size("labels")
@@ -218,13 +197,6 @@ class NLIModelVectorized(NLIModel):
                  highway: bool = False):
         super().__init__(vocab)
         self.embedder = embedder
-        if embedder is None:
-            embedder = BasicTextFieldEmbedder(
-                {
-                    "tokens": PretrainedTransformerEmbedder("bert-base-multilingual-cased")
-                }
-            )
-            self.embedder = embedder
         self.encoder = encoder or BertCLSPooler(self.embedder.get_output_dim())
         self.dropout = nn.Dropout(dropout)
         num_classes = self.vocab.get_vocab_size("labels")
@@ -258,6 +230,54 @@ class NLIModelVectorized(NLIModel):
         # encodedi - [batch, d_model]
         encoded_cls = torch.cat((encoded1, encoded2), dim=1)
 
+        logits = self.clf(encoded_cls)
+        # logits - batch_size, num_classes
+        output_dict = {"logits": logits}
+        if labels is not None:
+            # labels - batch_size
+            labels = labels.view(-1)
+            loss = cross_entropy(logits, labels)
+            output_dict["loss"] = loss
+            self.accuracy(logits, labels)
+            self.f1(logits, labels)
+        return output_dict
+
+@Model.register("NLIModelSE")
+class NLIModelSE(NLIModel):
+
+    default_predictor = "NLIPredictor"
+
+    def __init__(self,
+                 vocab: Vocabulary,
+                 embedder: TextFieldEmbedder = None,
+                 dropout: float = 0.3):
+        super().__init__(vocab)
+        self.embedder = embedder
+        self.dropout = nn.Dropout(dropout)
+        num_classes = self.vocab.get_vocab_size("labels")
+        assert num_classes > 0, "Wrong namespace for labels apparently"
+        self.sic = SICModel(self.encoder.get_output_dim())
+        self.interp = InterpretationModel(self.encoder.get_output_dim())
+        self.clf = nn.Linear(self.encoder.get_output_dim(), num_classes)
+        self.accuracy = CategoricalAccuracy()
+        self.f1 = FBetaMeasure(average=None, labels=list(range(self.vocab.get_vocab_size("labels"))))
+
+    def generate_span_masks(self, middle: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        return torch.Tensor(1)
+
+    def forward(self,
+                tokens: Dict[str, Dict[str, torch.LongTensor]],
+                middle: torch.LongTensor,
+                labels: torch.LongTensor = None,
+                **kwargs) -> Dict[str, torch.Tensor]:
+        mask = get_text_field_mask(tokens)
+        embedded = self.embedder(tokens)
+        embedded = self.dropout(embedded)
+        # embedded - [batch, seq_len, d_model]
+        hij = self.sic(embedded, mask)
+        # hij - [batch, num_spans, d_model]
+        span_masks = self.generate_span_masks(middle, mask)
+        encoded_cls, alphas = self.interp(hij, span_masks)
         logits = self.clf(encoded_cls)
         # logits - batch_size, num_classes
         output_dict = {"logits": logits}
