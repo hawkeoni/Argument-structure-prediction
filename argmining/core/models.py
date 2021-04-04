@@ -246,9 +246,11 @@ class NLIModelSE(NLIModel):
 
     def __init__(self,
                  vocab: Vocabulary,
+                 lambd: float,
                  embedder: TextFieldEmbedder = None,
                  dropout: float = 0.3):
         super().__init__(vocab)
+        self.lambd = lambd
         self.embedder = embedder
         self.dropout = nn.Dropout(dropout)
         num_classes = self.vocab.get_vocab_size("labels")
@@ -313,7 +315,8 @@ class NLIModelSE(NLIModel):
             # labels - batch_size
             labels = labels.view(-1)
             loss = cross_entropy(logits, labels)
-            output_dict["loss"] = loss
+            alpha2 = alphas * alphas
+            output_dict["loss"] = loss + self.lamb * alpha2.sum(dim=1).mean()
             self.accuracy(logits, labels)
             self.f1(logits, labels)
         return output_dict
