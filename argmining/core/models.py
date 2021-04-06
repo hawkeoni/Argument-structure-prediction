@@ -193,7 +193,7 @@ class NLIModelVectorized(NLIModel):
                  encoder: Seq2VecEncoder = None,
                  dropout: float = 0.3,
                  highway: bool = False):
-        super().__init__(vocab)
+        super().__init__(vocab, embedder, encoder, dropout)
         self.embedder = embedder
         self.encoder = encoder or BertCLSPooler(self.embedder.get_output_dim())
         self.dropout = nn.Dropout(dropout)
@@ -311,7 +311,7 @@ class NLIModelSE(Model):
         encoded_cls, alphas = self.interp(hij, span_masks)
         logits = self.clf(encoded_cls)
         # logits - batch_size, num_classes
-        output_dict = {"logits": logits}
+        output_dict = {"logits": logits, "alphas": alphas}
         if labels is not None:
             # labels - batch_size
             labels = labels.view(-1)
