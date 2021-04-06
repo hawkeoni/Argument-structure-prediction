@@ -49,5 +49,4 @@ class NLIPredictor(Predictor):
         result = self.predict_instance(instance)
         result["labels"] = self.labels
         result["scores"] = {k: v for k, v in zip(self.labels, result["logits"])}
-
         return result

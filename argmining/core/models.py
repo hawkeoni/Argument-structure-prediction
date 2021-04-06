@@ -185,7 +185,8 @@ class NLIModel(Model):
 
 @Model.register("NLIModelVectorized")
 class NLIModelVectorized(NLIModel):
-    default_predictor = "NLIPredictorVectorized"
+
+    default_predictor = "NLIPredictor"
 
     def __init__(self,
                  vocab: Vocabulary,
