@@ -1,0 +1,122 @@
+\documentclass[oneside,senior,etd]{BYUPhys}
+
+\usepackage[utf8]{inputenc}
+\usepackage{rotating} 
+\usepackage{listings}
+\usepackage[english, russian]{babel}
+\usepackage{amsfonts} % Пакеты для математических символов и теорем
+\usepackage{amstext}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{graphicx} % Пакеты для вставки графики
+\usepackage{subfig}
+\usepackage{color}
+\usepackage[unicode]{hyperref}
+\usepackage[nottoc]{tocbibind} % Для того, чтобы список литературы отображался в оглавлении
+\usepackage{algorithmic} % Для записи алгоритмов в псевдокоде
+\usepackage{algorithm}
+\usepackage{verbatim} % Для вставок заранее подготовленного текста в режиме as-is
+\usepackage{indentfirst} % Красная строка
+\usepackage{enumitem}
+\usepackage{caption}
+
+\usepackage{amsmath}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+\titleclass{\subsubsubsection}{straight}[\subsection]
+
+\newcounter{subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection.\arabic{subsubsubsection}}
+\renewcommand\theparagraph{\thesubsubsubsection.\arabic{paragraph}} % optional; useful if paragraphs are to be numbered
+
+\titleformat{\subsubsubsection}
+  {\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
+\titlespacing*{\subsubsubsection}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{5}{\z@}%
+  {3.25ex \@plus1ex \@minus.2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{6}{\parindent}%
+  {3.25ex \@plus1ex \@minus .2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}
+\def\toclevel@subsubsubsection{4}
+\def\toclevel@paragraph{5}
+\def\toclevel@paragraph{6}
+\def\l@subsubsubsection{\@dottedtocline{4}{7em}{4em}}
+\def\l@paragraph{\@dottedtocline{5}{10em}{5em}}
+\def\l@subparagraph{\@dottedtocline{6}{14em}{6em}}
+\makeatother
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+\Chair{Кафедра интеллектуальных информационных технологий}
+\Lab{}
+\Year{2021}
+  \Month{}
+  \City{Москва}
+  \AuthorText{}
+  \Author{Димов Илья Николаевич}
+  \AuthorEng{}
+  \AcadGroup{}
+
+  \TitleTop{Методы автоматического определения}
+  \TitleMiddle{структуры и полемической позиции аргументации}
+  \TitleBottom{} % leave empty if you don't need it
+  \TitleTopEng{}
+  \TitleMiddleEng{}
+  \TitleBottomEng{} %  leave empty if you don't need it
+  
+  \docname{}
+  %\docname{ВЫПУСКНАЯ КВАЛИФИКАЦИОННАЯ РАБОТА}
+  \Advisor{Добров Борис Викторович}
+  \AdvisorDegree{к.ф.-м.н.}
+
+\Abstract{         
+
+Настоящая работа посвящена исследованию методов решения задачи автоматического извлечения аргументации в текстах.
+
+В работе проводится обзор существующих моделей аргументации и соответствующих подходов ее выделения. Дополнительно исследуется извлечение политической аргументации - пропаганды.
+
+Предлагаются модельные подходы для решения задач выделения структуры и определения полемической позиции аргументации, показывающие улучшение качества по сравнению с ранее заявленными методами. Исследуется возможность применения знаний, полученных предобучением на задаче логического вывода, а также возможность переноса моделей, обученных на английском языке, на русский язык.
+}
+\AbstractEng{}
+
+
+%%%% DON'T change this. It is here because .sty does not support cyrillic cp properly %%%%
+\University{Московский государственный университет имени М.В. Ломоносова}
+\Faculty{Факультет вычислительной математики и кибернетики}
+\GrText{группа}
+\AdvisorText{Научный руководитель}
+\AbstractText{Аннотация}
+
+\begin{document}
+\fixmargins
+\makepreliminarypages
+
+\oneandhalfspace
+
+\tableofcontents
+
+\include{Introduction}
+\include{Goals}
+\include{RelatedWork}
+\include{Methods}
+\include{Program}
+\include{Experiment}
+\include{Result}
+
+\bibliographystyle{gost780u.bst} % Для соответствия требованиям об оформлении списка литературы
+\bibliography{refs}
+
+% \appendix
+% \include{Appendix}
+
+\end{document}

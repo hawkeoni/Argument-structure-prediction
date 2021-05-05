@@ -1,0 +1,57 @@
+\section{Приложение}
+\subsection{Примеры работы сервиса}
+\subsection{Поиск предпосылок}
+
+\begin{verbatim}
+Утверждение: Мы должны отменить электронное голосование
+Предпосылка:Были высказаны предположения, что электронное голосование 
+может быть проще и быстрее, чем физическое прохождение 
+через холл подразделения.
+Связь: Предпосылка поддержвает утверждение
+
+Утверждение: Мы должны запретить азартные игры
+Предпосылка: Вообще говоря, избранные вожди и Воинское общество поддерживали
+азартные игры, в то время как традиционные вожди выступали против нее.
+Связь: Либо нерелевантно, либо отрицание.
+\end{verbatim}
+
+\subsection{Классификация отношений}
+\begin{verbatim}
+Тема: the sale of violent video games to minors
+Предпосылка: exposure to violent video games causes at least a temporary increase 
+in aggression and that this exposure correlates with aggression in the real world
+Связь: Атака
+
+Тема: make physical education compulsory
+Предпосылка: A sedentary lifestyle plays a significant role in obesity
+Связь: Поддержка
+
+Тема: freedom of speech
+Предпосылка:  nuclear weapons contribute to stability at a strategic level
+Связь: нейтральная
+\end{verbatim}
+
+\subsection{Пример конфигурационного файла для обучения}
+\label{sec:jsonnet}
+\begin{verbatim}
+{
+    "dataset_reader" : {
+        "type": "IBMReader"
+    },
+    "train_data_path": "path/to/train/data",
+    "validation_data_path": "path/to/validation/data",
+    "model": {
+        "type": "topic_sentence_model"
+    },
+    "data_loader": {
+        "batch_size": 16
+    },
+    "trainer": {
+        "optimizer": {
+            "type": "adam",
+            "lr": 2e-5
+        },
+        "num_epochs": 5
+    }
+}
+\end{verbatim}
