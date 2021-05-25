@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Dict, Any
 
 from allennlp.predictors import Predictor
-from allennlp.models.archival import load_archive
 from flask import Flask, render_template, request, jsonify
 
 from argmining.core import TopicSentencePredictor, ClaimsReader
@@ -11,7 +10,7 @@ from argmining.core import TopicSentencePredictor, ClaimsReader
 
 app = Flask(__name__, template_folder="templates")
 app_dict = {}
-MODEL_PATH = os.environ.get("MODEL_PATH")
+MODEL_PATH = Path(os.environ.get("MODEL_PATH"))
 
 
 def load_models_from_directory(directory: Path) -> Dict[str, Predictor]:
@@ -66,7 +65,11 @@ def predict_cs():
     model_class = request.json["model"]
     predictor = app_dict["cs_models"][model_class]
     del request.json["model"]
-    return jsonify(predictor.predict_json(request.json))
+    print(request.json)
+    j = {}
+    j["sentence1"] = request.json["target"]
+    j["sentence2"] = request.json["claim"]
+    return jsonify(predictor.predict_json(j))
 
 
 @app.route("/reload")
@@ -77,4 +80,4 @@ def reload():
 
 if __name__ == "__main__":
     app_dict.update(init_app())
-    app.run(host="0.0.0.0", port=8888)
+    app.run(host="0.0.0.0", port=8080)
