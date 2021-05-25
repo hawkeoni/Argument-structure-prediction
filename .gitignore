@@ -9,3 +9,4 @@ reports
 .ipynb_checkpoints
 *egg-info
 datasets
+.vscode
