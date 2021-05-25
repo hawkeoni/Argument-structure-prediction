@@ -7,9 +7,6 @@ import wandb
 from allennlp.training import EpochCallback, GradientDescentTrainer
 
 
-# 
-
-
 @EpochCallback.register("wandb")
 class WandbCallback(EpochCallback):
     """
