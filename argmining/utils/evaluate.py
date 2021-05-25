@@ -48,8 +48,14 @@ def main(dataset: Path, predictions: Path, ignored_labels: List[str] = []):
         else:
             metrics[topic]["fn"] += 1
             metrics[topic]["fp"] += 1
+    
     micro = defaultdict(int)
     macro = {"f1": 0, "precision": 0, "recall": 0}
+    # metrics - topic -> tp, fp, fn
+    # metric -> tp, fp, fn
+    # micro - tp, fp, fn
+    # calc_metric - prec, rec, f1
+    # macro -> prec, rec, f1
     for topic, metric in metrics.items():
         for k, v in metric.items():
             micro[k] += v
