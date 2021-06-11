@@ -19,7 +19,7 @@ class BertCLSPooler(Seq2VecEncoder):
 
     def forward(self, x, *args, **kwargs):
         # x - batch, seq_len, hidden
-        return x[:, 0]
+        return x[:, 0]  # batch, hidden
 
 
 class SICModel(nn.Module):

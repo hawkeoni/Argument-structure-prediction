@@ -5,7 +5,7 @@ from typing import Dict, Any
 from allennlp.predictors import Predictor
 from flask import Flask, render_template, request, jsonify
 
-from argmining.core import TopicSentencePredictor, ClaimsReader
+from argmining.core import *
 
 
 app = Flask(__name__, template_folder="templates")
@@ -26,13 +26,9 @@ def load_models_from_directory(directory: Path) -> Dict[str, Predictor]:
 
 
 def init_app() -> Dict[str, Any]:
-    dict_update = {}
     if MODEL_PATH is None:
         raise ValueError("MODEL_PATH env variable not specified.")
-    # claim search models
-    dict_update["es_models"] = load_models_from_directory(MODEL_PATH / "es_models")
-    dict_update["cs_models"] = load_models_from_directory(MODEL_PATH / "cs_models")
-    return dict_update
+    return load_models_from_directory(MODEL_PATH)
 
 
 @app.route("/", methods=["get"])
@@ -56,14 +52,14 @@ def predict_es():
 
 @app.route("/cs.html", methods=["get"])
 def display_cs():
-    model_choices = list(app_dict["cs_models"].keys())
+    model_choices = list(app_dict.keys())
     return render_template("cs.html", models=model_choices)
 
 
 @app.route("/cs.html", methods=["post"])
 def predict_cs():
     model_class = request.json["model"]
-    predictor = app_dict["cs_models"][model_class]
+    predictor = app_dict[model_class]
     del request.json["model"]
     print(request.json)
     j = {}
