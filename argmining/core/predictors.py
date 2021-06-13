@@ -1,5 +1,6 @@
+from typimg import List
 from allennlp.models import Model
-from allennlp.common import JsonDict
+from allennlp.common import JsonDict, sanitize
 from allennlp.data import Instance, DatasetReader
 from allennlp.predictors import Predictor
 
@@ -34,6 +35,7 @@ class NLIPredictor(Predictor):
 
     def __init__(self, model: Model, dataset_reader: DatasetReader, frozen: bool = True, neutral: bool = True) -> None:
         super().__init__(model, dataset_reader, frozen)
+        raise BaseException("Exception")
         self.neutral = neutral
         self.label2idx = self._model.vocab.get_token_to_index_vocabulary("labels")
         self.idx2label = self._model.vocab.get_index_to_token_vocabulary("labels")
@@ -50,3 +52,10 @@ class NLIPredictor(Predictor):
         result["labels"] = self.labels
         result["scores"] = {k: v for k, v in zip(self.labels, result["logits"])}
         return result
+ 
+    def predict_batch_instance(self, instances: List[Instance]) -> List[JsonDict]:
+        outputs = self._model.forward_on_instances(instances)
+        for output in outputs:
+            output["labels"] = self.labels
+            output["scores"] = {k: v for k, v in zip(self.labels, output["logits"])}
+        return sanitize(outputs)
