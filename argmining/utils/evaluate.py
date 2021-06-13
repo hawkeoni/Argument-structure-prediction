@@ -43,11 +43,19 @@ def main(dataset: Path, predictions: Path, ignored_labels: List[str] = []):
         true_label = data["gold_label"]
         topic = data["sentence1"]
         pred_label = get_predicted_class(pred, ignored_labels)
-        if pred_label == true_label:
+        if pred_label == "entailment" and true_label == "entailment":
             metrics[topic]["tp"] += 1
-        else:
-            metrics[topic]["fn"] += 1
+        elif pred_label == "entailment" and true_label == "contradiction":
             metrics[topic]["fp"] += 1
+        elif pred_label == "contradiction" and true_label == "entailment":
+            metrics[topic]["fn"] += 1
+        elif pred_label == "contradiction" and true_label == "contradiction":
+            metrics[topic]["tn"] += 1
+        # if pred_label == true_label:
+        #     metrics[topic]["tp"] += 1
+        # else:
+        #     metrics[topic]["fn"] += 1
+        #     metrics[topic]["fp"] += 1
     
     micro = defaultdict(int)
     macro = {"f1": 0, "precision": 0, "recall": 0}
@@ -56,12 +64,20 @@ def main(dataset: Path, predictions: Path, ignored_labels: List[str] = []):
     # micro - tp, fp, fn
     # calc_metric - prec, rec, f1
     # macro -> prec, rec, f1
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
     for topic, metric in metrics.items():
         for k, v in metric.items():
             micro[k] += v
         calc_metric = get_metric(metric)
         print(topic)
         print(calc_metric)
+        tp += metric["tp"]
+        tn += metric["tn"]
+        fp += metric["fp"]
+        fn += metric["fn"]
         for k, v in calc_metric.items():
             macro[k] += v
 
@@ -71,6 +87,7 @@ def main(dataset: Path, predictions: Path, ignored_labels: List[str] = []):
     for k, v in macro.items():
         macro[k] = v / len(metrics)
     print(macro)
+    print("Accuracy:", (tp + tn) / (tp + tn + fp + fn))
 
 
 if __name__ == "__main__":
