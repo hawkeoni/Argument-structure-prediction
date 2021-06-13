@@ -64,15 +64,21 @@ class NLIPredictor(Predictor):
         nom = 0
         span = (0, 0)
         length = len(tokens)
+        flag = False
         for i in range(1, length - 1):
             for j in range(i, length - 1):
                 span = (i, j)
                 if nom == best_span:
+                    flag = True
                     break
                 nom += 1
         i, j = span
         best_tokens = tokens[i: j + 1]
         output["best_span"] = " ".join([token.text for token in best_tokens])
+        output["nom"] = nom
+        output["ij"] = [i, j]
+        output["break"] = flag
+        output["val"] = alphas[best_span]
  
     def predict_batch_instance(self, instances: List[Instance]) -> List[JsonDict]:
         outputs = self._model.forward_on_instances(instances)

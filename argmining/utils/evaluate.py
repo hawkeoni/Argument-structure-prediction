@@ -51,11 +51,6 @@ def main(dataset: Path, predictions: Path, ignored_labels: List[str] = []):
             metrics[topic]["fn"] += 1
         elif pred_label == "contradiction" and true_label == "contradiction":
             metrics[topic]["tn"] += 1
-        # if pred_label == true_label:
-        #     metrics[topic]["tp"] += 1
-        # else:
-        #     metrics[topic]["fn"] += 1
-        #     metrics[topic]["fp"] += 1
     
     micro = defaultdict(int)
     macro = {"f1": 0, "precision": 0, "recall": 0}
