@@ -1,0 +1,3 @@
+outs:
+- md5: b2b72d9873df8fb9b6b4b3bde83054d6
+  path: snli_basic.tar.gz

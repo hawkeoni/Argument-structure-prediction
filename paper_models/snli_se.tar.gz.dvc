@@ -1,0 +1,3 @@
+outs:
+- md5: fafed2889e18111794f07e8e2c736b42
+  path: snli_se.tar.gz
