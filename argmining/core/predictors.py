@@ -35,7 +35,6 @@ class NLIPredictor(Predictor):
 
     def __init__(self, model: Model, dataset_reader: DatasetReader, frozen: bool = True, neutral: bool = True) -> None:
         super().__init__(model, dataset_reader, frozen)
-        raise BaseException("Exception")
         self.neutral = neutral
         self.label2idx = self._model.vocab.get_token_to_index_vocabulary("labels")
         self.idx2label = self._model.vocab.get_index_to_token_vocabulary("labels")
