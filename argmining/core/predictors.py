@@ -1,6 +1,6 @@
 from typing import List
 from allennlp.models import Model
-from allennlp.common import JsonDict, sanitize
+from allennlp.common.util import JsonDict, sanitize
 from allennlp.data import Instance, DatasetReader
 from allennlp.predictors import Predictor
 
