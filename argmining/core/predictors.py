@@ -1,4 +1,4 @@
-from typimg import List
+from typing import List
 from allennlp.models import Model
 from allennlp.common import JsonDict, sanitize
 from allennlp.data import Instance, DatasetReader
