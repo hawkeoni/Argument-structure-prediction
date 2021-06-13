@@ -52,7 +52,8 @@ class NLIPredictor(Predictor):
         result = self.predict_instance(instance)
         result["labels"] = self.labels
         result["scores"] = {k: v for k, v in zip(self.labels, result["logits"])}
-        return self.get_most_important_part(instance, result)
+        self.get_most_important_part(instance, result)
+        return result
 
     def get_most_important_part(self, instance: Instance, output: JsonDict):
         if "alphas" not in output:
@@ -78,4 +79,5 @@ class NLIPredictor(Predictor):
         for output in outputs:
             output["labels"] = self.labels
             output["scores"] = {k: v for k, v in zip(self.labels, output["logits"])}
+            self.get_most_important_part(output)
         return sanitize(outputs)
