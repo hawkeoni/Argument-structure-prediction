@@ -1,0 +1,48 @@
+{
+    "dataset_reader": {
+        "type": "NLIReaderVectorized",
+        "token_indexers": {
+            "tokens": {
+                "type": "pretrained_transformer",
+                "model_name": "bert-base-cased"
+            }
+        },
+        "tokenizer": {
+            "type": "pretrained_transformer",
+            "model_name": "bert-base-cased"
+        }
+    },
+    "model": {
+        "type": "NLIModelVectorized",
+        "embedder": {
+            "type": "basic",
+            "token_embedders": {
+                "tokens": {
+                    "type": "pretrained_transformer",
+                    "model_name": "bert-base-cased"
+                }
+            }
+        }
+    },
+    "train_data_path": "datasets/EviEN_stance_train.jsonl",
+    "validation_data_path": "datasets/EviEN_stance_dev.jsonl",
+    "trainer": {
+        "epoch_callbacks": [
+            {
+                "project": "claim_stance",
+                "run_name": "args_en_nli",
+                "type": "wandb"
+            }
+        ],
+        "num_epochs": 10,
+        "num_gradient_accumulation_steps": 2,
+        "optimizer": {
+            "type": "adam",
+            "lr": 2e-05
+        },
+        "validation_metric": "+accuracy"
+    },
+    "data_loader": {
+        "batch_size": 16
+    }
+}

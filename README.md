@@ -11,7 +11,7 @@ For uniformity with the SNLI dataset the PRO/CON classes are transformed into en
 The trained models are located in the **paper_models** folder and get be downloaded via the `dvc pull` comand.
 
 ##  Traning and Inference
-The training configs may be accesed as artifacts from the [wandb page](https://wandb.ai/hawkeoni/claim_stance?workspace=user-hawkeoni).
+The training configs may be accesed as artifacts from the [wandb page](https://wandb.ai/hawkeoni/claim_stance?workspace=user-hawkeoni) or in the **configs** folder.
 
 To train a model with a config use command:
 ```
