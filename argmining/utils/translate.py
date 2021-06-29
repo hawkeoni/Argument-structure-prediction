@@ -15,24 +15,20 @@ if API_KEY is None:
     logger.warning("API KEY IS NOT SET, TRANSLATION WILL NOT WORK")
 
 
-def translate(phrase: str,
-              source_lang: str = "en",
-              target_lang: str = "ru") -> str:
+def translate(phrase: str, source_lang: str = "en", target_lang: str = "ru") -> str:
     """
     Universal function to translate from one language into another using
     rapidapi's approach to google translate API.
     """
     url = "https://google-translate1.p.rapidapi.com/language/translate/v2"
-    payload = urllib.parse.urlencode({
-        "q": phrase,
-        "source": source_lang,
-        "target": target_lang
-    })
+    payload = urllib.parse.urlencode(
+        {"q": phrase, "source": source_lang, "target": target_lang}
+    )
     headers = {
-        'x-rapidapi-host': "google-translate1.p.rapidapi.com",
-        'x-rapidapi-key': API_KEY,
-        'accept-encoding': "application/gzip",
-        'content-type': "application/x-www-form-urlencoded"
+        "x-rapidapi-host": "google-translate1.p.rapidapi.com",
+        "x-rapidapi-key": API_KEY,
+        "accept-encoding": "application/gzip",
+        "content-type": "application/x-www-form-urlencoded",
     }
     response = requests.request("POST", url, data=payload, headers=headers)
     try:
@@ -57,7 +53,9 @@ def translate_df(df: pd.DataFrame, columns: List[str], dump_file: Optional[str] 
     splitter = "\t|\t"
     copy_df = df.copy()
     if dump_file is None and len(df) > 10:
-        logger.warning("It is highly advised to specify `dump_file` for big dataframes.")
+        logger.warning(
+            "It is highly advised to specify `dump_file` for big dataframes."
+        )
     if dump_file is not None:
         f = open(dump_file, "w")
         for c in columns:

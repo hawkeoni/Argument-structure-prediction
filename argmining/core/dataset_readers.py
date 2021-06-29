@@ -11,13 +11,16 @@ from allennlp.data.fields import TextField, LabelField, MetadataField, ArrayFiel
 
 @DatasetReader.register("NLIReader")
 class NLIReader(DatasetReader):
-
-    def __init__(self,
-                 tokenizer: Tokenizer = None,
-                 token_indexers: Dict[str, TokenIndexer] = None,
-                 lazy: bool = False):
+    def __init__(
+        self,
+        tokenizer: Tokenizer = None,
+        token_indexers: Dict[str, TokenIndexer] = None,
+        lazy: bool = False,
+    ):
         super().__init__(lazy)
-        assert isinstance(tokenizer, PretrainedTransformerTokenizer), "Tokenizer must be a transformer."
+        assert isinstance(
+            tokenizer, PretrainedTransformerTokenizer
+        ), "Tokenizer must be a transformer."
         self._tokenizer = tokenizer
         self._token_indexers = token_indexers
 
@@ -29,10 +32,7 @@ class NLIReader(DatasetReader):
             yield self.text_to_instance(d["sentence1"], d["sentence2"], d["gold_label"])
 
     def text_to_instance(
-            self,
-            text: str,
-            hypothesis: str,
-            label: str = None
+        self, text: str, hypothesis: str, label: str = None
     ) -> Instance:
         fields = {}
         # to make it look like [cls] sent1 [sep] sent2 [sep]
@@ -51,12 +51,8 @@ class NLIReader(DatasetReader):
 
 @DatasetReader.register("NLIReaderVectorized")
 class NLIReaderVectorized(NLIReader):
-
     def text_to_instance(
-            self,
-            text: str,
-            hypothesis: str,
-            label: str = None
+        self, text: str, hypothesis: str, label: str = None
     ) -> Instance:
         fields = {}
         # to make it look like two instances [cls] sent1 [sep] & [cls] sent2 [sep]
@@ -73,12 +69,8 @@ class NLIReaderVectorized(NLIReader):
 
 @DatasetReader.register("NLIReaderSE")
 class NLIReaderSE(NLIReader):
-
     def text_to_instance(
-            self,
-            text: str,
-            hypothesis: str,
-            label: str = None
+        self, text: str, hypothesis: str, label: str = None
     ) -> Instance:
         fields = {}
         # to make it look like [cls] sent1 [sep] sent2 [sep]

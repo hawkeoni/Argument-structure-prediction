@@ -13,11 +13,12 @@ class WandbCallback(EpochCallback):
     Callback to log metrics to wandb.
     """
 
-    def __init__(self,
-                 project: str,
-                 run_name: str = None,
-                 metrics_regex: str = ".*",
-                 ):
+    def __init__(
+        self,
+        project: str,
+        run_name: str = None,
+        metrics_regex: str = ".*",
+    ):
         self.project = project
         self.metrics_regex = metrics_regex
         self.run = wandb.init(project=project, job_type="train")
@@ -26,11 +27,11 @@ class WandbCallback(EpochCallback):
             print("Run name deprecated")
 
     def __call__(
-            self,
-            trainer: GradientDescentTrainer,
-            metrics: Dict[str, Any],
-            epoch: int,
-            is_master: bool
+        self,
+        trainer: GradientDescentTrainer,
+        metrics: Dict[str, Any],
+        epoch: int,
+        is_master: bool,
     ):
         if not is_master:
             return
@@ -43,6 +44,7 @@ class WandbCallback(EpochCallback):
             self.run.name = trainer._serialization_dir
 
         for metric_name, metric_value in metrics.items():
-            if isinstance(metric_value, (float, int)) and \
-                    re.findall(self.metrics_regex, metric_name):
+            if isinstance(metric_value, (float, int)) and re.findall(
+                self.metrics_regex, metric_name
+            ):
                 wandb.log({"epoch": epoch, metric_name: metric_value})

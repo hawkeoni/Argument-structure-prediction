@@ -7,16 +7,9 @@ from allennlp.data import Vocabulary
 from allennlp.models.model import Model
 from allennlp.modules import Seq2VecEncoder, TextFieldEmbedder
 from allennlp.nn.util import get_text_field_mask
-from allennlp.training.metrics import (
-    FBetaMeasure,
-    CategoricalAccuracy
-)
+from allennlp.training.metrics import FBetaMeasure, CategoricalAccuracy
 
-from argmining.core.modules import (
-    BertCLSPooler,
-    SICModel,
-    InterpretationModel
-)
+from argmining.core.modules import BertCLSPooler, SICModel, InterpretationModel
 
 
 @Model.register("NLIModel")
@@ -24,11 +17,13 @@ class NLIModel(Model):
 
     default_predictor = "NLIPredictor"
 
-    def __init__(self,
-                 vocab: Vocabulary,
-                 embedder: TextFieldEmbedder = None,
-                 encoder: Seq2VecEncoder = None,
-                 dropout: float = 0.3):
+    def __init__(
+        self,
+        vocab: Vocabulary,
+        embedder: TextFieldEmbedder = None,
+        encoder: Seq2VecEncoder = None,
+        dropout: float = 0.3,
+    ):
         super().__init__(vocab)
         self.embedder = embedder
         self.encoder = encoder or BertCLSPooler(self.embedder.get_output_dim())
@@ -41,10 +36,12 @@ class NLIModel(Model):
         labels = list(range(num_classes))
         self.f1 = FBetaMeasure(average=None, labels=labels)
 
-    def forward(self,
-                tokens: Dict[str, Dict[str, torch.LongTensor]],
-                labels: torch.LongTensor = None,
-                **kwargs) -> Dict[str, torch.Tensor]:
+    def forward(
+        self,
+        tokens: Dict[str, Dict[str, torch.LongTensor]],
+        labels: torch.LongTensor = None,
+        **kwargs,
+    ) -> Dict[str, torch.Tensor]:
         mask = get_text_field_mask(tokens)
         embedded = self.embedder(tokens)
         embedded = self.dropout(embedded)
@@ -72,7 +69,7 @@ class NLIModel(Model):
         return metrics
 
     def make_output_human_readable(
-            self, output_dict: Dict[str, torch.Tensor]
+        self, output_dict: Dict[str, torch.Tensor]
     ) -> Dict[str, Any]:
         return output_dict
 
@@ -82,12 +79,14 @@ class NLIModelVectorized(NLIModel):
 
     default_predictor = "NLIPredictor"
 
-    def __init__(self,
-                 vocab: Vocabulary,
-                 embedder: TextFieldEmbedder = None,
-                 encoder: Seq2VecEncoder = None,
-                 dropout: float = 0.3,
-                 highway: bool = False):
+    def __init__(
+        self,
+        vocab: Vocabulary,
+        embedder: TextFieldEmbedder = None,
+        encoder: Seq2VecEncoder = None,
+        dropout: float = 0.3,
+        highway: bool = False,
+    ):
         super().__init__(vocab, embedder, encoder, dropout)
         self.embedder = embedder
         self.encoder = encoder or BertCLSPooler(self.embedder.get_output_dim())
@@ -99,17 +98,23 @@ class NLIModelVectorized(NLIModel):
             self.clf = nn.Linear(self.encoder.get_output_dim() * 2, num_classes)
         else:
             output_dim = self.encoder.get_output_dim()
-            self.clf = nn.Sequential(nn.Linear(output_dim * 2, output_dim),
-                                     nn.Sigmoid(),
-                                     nn.Linear(output_dim, num_classes))
+            self.clf = nn.Sequential(
+                nn.Linear(output_dim * 2, output_dim),
+                nn.Sigmoid(),
+                nn.Linear(output_dim, num_classes),
+            )
         self.accuracy = CategoricalAccuracy()
-        self.f1 = FBetaMeasure(average=None, labels=list(range(self.vocab.get_vocab_size("labels"))))
+        self.f1 = FBetaMeasure(
+            average=None, labels=list(range(self.vocab.get_vocab_size("labels")))
+        )
 
-    def forward(self,
-                tokens1: Dict[str, Dict[str, torch.LongTensor]],
-                tokens2: Dict[str, Dict[str, torch.LongTensor]],
-                labels: torch.LongTensor = None,
-                **kwargs) -> Dict[str, torch.Tensor]:
+    def forward(
+        self,
+        tokens1: Dict[str, Dict[str, torch.LongTensor]],
+        tokens2: Dict[str, Dict[str, torch.LongTensor]],
+        labels: torch.LongTensor = None,
+        **kwargs,
+    ) -> Dict[str, torch.Tensor]:
         mask1 = get_text_field_mask(tokens1)
         embedded1 = self.embedder(tokens1)
         embedded1 = self.dropout(embedded1)
@@ -140,11 +145,13 @@ class NLIModelSE(Model):
 
     default_predictor = "NLIPredictor"
 
-    def __init__(self,
-                 vocab: Vocabulary,
-                 lambd: float,
-                 embedder: TextFieldEmbedder = None,
-                 dropout: float = 0.3):
+    def __init__(
+        self,
+        vocab: Vocabulary,
+        lambd: float,
+        embedder: TextFieldEmbedder = None,
+        dropout: float = 0.3,
+    ):
         super().__init__(vocab)
         self.lambd = lambd
         self.embedder = embedder
@@ -155,9 +162,13 @@ class NLIModelSE(Model):
         self.interp = InterpretationModel(self.embedder.get_output_dim())
         self.clf = nn.Linear(self.embedder.get_output_dim(), num_classes)
         self.accuracy = CategoricalAccuracy()
-        self.f1 = FBetaMeasure(average=None, labels=list(range(self.vocab.get_vocab_size("labels"))))
+        self.f1 = FBetaMeasure(
+            average=None, labels=list(range(self.vocab.get_vocab_size("labels")))
+        )
 
-    def generate_span_masks(self, middle: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    def generate_span_masks(
+        self, middle: torch.Tensor, mask: torch.Tensor
+    ) -> torch.Tensor:
         middle = middle.detach().view(-1).tolist()  # [batch_size, 1]
         # mask - [batch_size, seq_len]
         lengths = mask.detach().sum(dim=1).tolist()
@@ -181,8 +192,11 @@ class NLIModelSE(Model):
             column = 0
             for span_start in range(1, maxlen - 1):
                 for span_end in range(span_start, maxlen - 1):
-                    if 1 <= span_start <= sample_length - 2 and 1 <= span_end <= sample_length - 2 and (
-                            span_start > sample_middle or span_end < sample_middle):
+                    if (
+                        1 <= span_start <= sample_length - 2
+                        and 1 <= span_end <= sample_length - 2
+                        and (span_start > sample_middle or span_end < sample_middle)
+                    ):
                         span_masks[batch_idx][column] = 0
                     else:
                         span_masks[batch_idx][column] = 1e-6
@@ -191,11 +205,13 @@ class NLIModelSE(Model):
 
         return torch.LongTensor(span_masks).to(mask.device)
 
-    def forward(self,
-                tokens: Dict[str, Dict[str, torch.LongTensor]],
-                middle: torch.LongTensor,
-                labels: torch.LongTensor = None,
-                **kwargs) -> Dict[str, torch.Tensor]:
+    def forward(
+        self,
+        tokens: Dict[str, Dict[str, torch.LongTensor]],
+        middle: torch.LongTensor,
+        labels: torch.LongTensor = None,
+        **kwargs,
+    ) -> Dict[str, torch.Tensor]:
         mask = get_text_field_mask(tokens)
         embedded = self.embedder(tokens)
         embedded = self.dropout(embedded)

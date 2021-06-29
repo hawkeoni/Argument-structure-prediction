@@ -7,8 +7,10 @@ import pandas as pd
 from tqdm import tqdm
 
 
-label_mapping = {-1: "contradiction", 1: "entailment", 0: "neutral"}
-save_dir = Path().cwd() / "datasets"
+label_mapping = {0: "Not Relevant", 1: "Relevant"}
+# label_mapping = {0: "neutral", 1: "entailment"}
+save_dir = Path().cwd() / "relevance_datasets"
+save_dir.mkdir(exist_ok=True)
 
 
 def transform_df(
@@ -19,8 +21,6 @@ def transform_df(
         split: open(save_dir / f"{name_prefix}_{split}.jsonl", "w") for split in splits
     }
     for rownum, row in tqdm(df.iterrows()):
-        if name_prefix == "EviEN_stance" and row["evidence_label_EN"] == 0:
-            continue
         d = {}
         for k, v in column_mapping.items():
             d[v] = row[k]
@@ -33,39 +33,6 @@ def transform_df(
 
 
 def main(dataset_folder: Path):
-    # Argument df processing
-    argument_file = dataset_folder / "Arguments_6L_MT.csv"
-    argument_df = pd.read_csv(argument_file)
-    transform_df(
-        argument_df,
-        {
-            "topic_EN": "sentence1",
-            "argument_EN": "sentence2",
-            "stance_label_EN": "gold_label",
-        },
-        "ArgsEN",
-    )
-    # Evidence df stance + relevance
-    evidence_df = pd.read_csv(dataset_folder / "Evidence_6L_MT.csv")
-    transform_df(
-        evidence_df,
-        {
-            "topic_EN": "sentence1",
-            "sentence_EN": "sentence2",
-            "stance_label_EN": "gold_label",
-        },
-        "EviEN_combined",
-    )
-    # Evidence df stance processing
-    transform_df(
-        evidence_df,
-        {
-            "topic_EN": "sentence1",
-            "sentence_EN": "sentence2",
-            "stance_label_EN": "gold_label",
-        },
-        "EviEN_stance",
-    )
     # Evidence df relevance
     evidence_df = pd.read_csv(dataset_folder / "Evidence_6L_MT.csv")
     transform_df(

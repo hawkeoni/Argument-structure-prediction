@@ -6,7 +6,6 @@ from allennlp.modules import Seq2VecEncoder
 
 
 class BertCLSPooler(Seq2VecEncoder):
-
     def __init__(self, hidden_dim: int):
         super().__init__()
         self.hidden_dim = hidden_dim
@@ -59,7 +58,9 @@ class SICModel(nn.Module):
         length: int = mask.sum(dim=1).max().item()
         start_indexs, end_indexs = self.generate_indexes(length)
 
-        W1_hi_emb = torch.index_select(W1_h, 1, start_indexs)  # (bs, span_num, hidden_size)
+        W1_hi_emb = torch.index_select(
+            W1_h, 1, start_indexs
+        )  # (bs, span_num, hidden_size)
         W2_hj_emb = torch.index_select(W2_h, 1, end_indexs)
         W3_hi_start_emb = torch.index_select(W3_h, 1, start_indexs)
         W3_hi_end_emb = torch.index_select(W3_h, 1, end_indexs)
@@ -67,7 +68,12 @@ class SICModel(nn.Module):
         W4_hj_end_emb = torch.index_select(W4_h, 1, end_indexs)
 
         # [w1*hi, w2*hj, w3(hi-hj), w4(hi⊗hj)]
-        span = W1_hi_emb + W2_hj_emb + (W3_hi_start_emb - W3_hi_end_emb) + torch.mul(W4_hj_start_emb, W4_hj_end_emb)
+        span = (
+            W1_hi_emb
+            + W2_hj_emb
+            + (W3_hi_start_emb - W3_hi_end_emb)
+            + torch.mul(W4_hj_start_emb, W4_hj_end_emb)
+        )
         h_ij = torch.tanh(span)
         return h_ij
 
